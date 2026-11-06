@@ -66,6 +66,8 @@ debug.log
 .env.*
 *.secret
 *.ignore_*
+*.pem
+deployment/secrets/
 
 # Docker
 docker-compose.override.yml
@@ -106,8 +108,7 @@ build/
 .vercel/
 .netlify/
 
-# Dependencies
-package-lock.json
+# Dependencies (lockfiles are committed for reproducible Docker builds)
 yarn.lock
 pnpm-lock.yaml
 

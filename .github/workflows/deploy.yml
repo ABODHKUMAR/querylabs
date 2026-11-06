@@ -1,0 +1,90 @@
+name: Deploy to VM
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vm
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VM
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          if [ -z "${GCP_SSH_PRIVATE_KEY:-}" ]; then
+            echo "ERROR: GitHub secret GCP_SSH_PRIVATE_KEY is not set"
+            exit 1
+          fi
+          printf '%s\n' "$GCP_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keygen -l -f ~/.ssh/deploy_key
+
+          VM_IP="${{ secrets.GCP_VM_IP }}"
+          VM_IP="${VM_IP:-15.207.111.124}"
+          echo "VM_IP=$VM_IP" >> "$GITHUB_ENV"
+          VM_USER="${{ secrets.GCP_VM_USER }}"
+          VM_USER="${VM_USER:-ec2-user}"
+          echo "VM_USER=$VM_USER" >> "$GITHUB_ENV"
+
+          ssh-keyscan -H "$VM_IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy over SSH
+        run: |
+          set -euo pipefail
+          SSH=(ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes "${VM_USER}@${VM_IP}")
+          SCP=(scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes)
+
+          "${SCP[@]}" scripts/remote-deploy.sh "${VM_USER}@${VM_IP}:/tmp/remote-deploy.sh"
+          "${SSH[@]}" "chmod +x /tmp/remote-deploy.sh && \
+            DEPLOY_DIR=/opt/querylab \
+            GIT_BRANCH=master \
+            REPO_URL=https://github.com/ABODHKUMAR/querylabs.git \
+            /tmp/remote-deploy.sh"
+
+      - name: Health checks
+        run: |
+          set -euo pipefail
+          echo "Waiting for agents (max 5 min)..."
+          for i in $(seq 1 30); do
+            if curl -sf "http://${VM_IP}:8000/health" >/dev/null 2>&1; then
+              echo "agents /health OK (attempt $i)"
+              break
+            fi
+            echo "Attempt $i/30 — agents not ready, retrying in 10s..."
+            sleep 10
+            if [ "$i" -eq 30 ]; then
+              echo "ERROR: agents /health failed after 5 minutes"
+              exit 1
+            fi
+          done
+
+          echo "Waiting for orchestrator (max 3 min)..."
+          for i in $(seq 1 18); do
+            if curl -sf "http://${VM_IP}:8084/health" >/dev/null 2>&1; then
+              echo "orchestrator /health OK (attempt $i)"
+              break
+            fi
+            echo "Attempt $i/18 — orchestrator not ready, retrying in 10s..."
+            sleep 10
+            if [ "$i" -eq 18 ]; then
+              echo "ERROR: orchestrator /health failed after 3 minutes"
+              exit 1
+            fi
+          done
+
+          echo "Deployment successful → http://${VM_IP}:5174"
