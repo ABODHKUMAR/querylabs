@@ -71,7 +71,6 @@ deployment/secrets/
 
 # Docker
 docker-compose.override.yml
-*.dockerfile
 docker/mysql/data/
 
 # Ignore SQLite database files

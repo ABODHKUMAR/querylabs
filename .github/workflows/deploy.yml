@@ -35,7 +35,7 @@ jobs:
           ssh-keygen -l -f ~/.ssh/deploy_key
 
           VM_IP="${{ secrets.GCP_VM_IP }}"
-          VM_IP="${VM_IP:-15.207.111.124}"
+          VM_IP="${VM_IP:-3.109.189.178}"
           echo "VM_IP=$VM_IP" >> "$GITHUB_ENV"
           VM_USER="${{ secrets.GCP_VM_USER }}"
           VM_USER="${VM_USER:-ec2-user}"

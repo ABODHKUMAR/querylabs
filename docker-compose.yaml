@@ -298,6 +298,7 @@ services:
     container_name: nodejs-frontend-mcp-v2
     build:
       context: ./frontend
+      dockerfile: ${FRONTEND_DOCKERFILE:-dockerfile}
     environment:
       - VITE_HOST_URL=${VITE_HOST_URL:-127.0.0.1}
       - VITE_PORT_BACKEND_SQL=8084

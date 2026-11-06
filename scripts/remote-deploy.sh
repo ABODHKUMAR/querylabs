@@ -56,9 +56,23 @@ if ! ls .env.* >/dev/null 2>&1; then
   echo "[WARN] Copy env files onto the VM before the stack can start cleanly."
 fi
 
+# Build frontend on the host (uses swap). In-Docker vite OOMs on t3.small.
+echo "[INFO] Building frontend on host..."
+if ! command -v node >/dev/null 2>&1; then
+  echo "[INFO] Installing Node.js 20..."
+  curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+  sudo dnf install -y nodejs
+fi
+(
+  cd "$DEPLOY_DIR/frontend"
+  npm ci --omit=dev 2>/dev/null || npm ci
+  NODE_OPTIONS=--max-old-space-size=1536 npm run build
+)
+export FRONTEND_DOCKERFILE=dockerfile.prebuilt
+
 echo "[INFO] Rebuilding and starting services..."
 sudo docker compose down --remove-orphans || true
-sudo docker compose up --build -d
+sudo FRONTEND_DOCKERFILE=dockerfile.prebuilt docker compose up --build -d
 
 echo "[INFO] Container status:"
 sudo docker compose ps
