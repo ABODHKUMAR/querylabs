@@ -1,0 +1,48 @@
+{
+  "postgres_sales": {
+    "name": "postgres_sales",
+    "type": "sql",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "your-mcp-postgres-server"],
+    "env": {}
+  },
+  "weaviate_docs": {
+    "name": "weaviate_docs",
+    "type": "vector",
+    "transport": "http",
+    "url": "http://localhost:8001/mcp"
+  },
+  "mysql_analytics": {
+    "name": "mysql_analytics",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://localhost:8000/mcp"
+  },
+  "mysql_revenue": {
+    "name": "mysql_revenue",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://localhost:8005/mcp"
+  },
+  "mysql_beat": {
+    "name": "mysql_beat",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://localhost:8006/mcp"
+  },
+  "weaviate_mcp": {
+    "name": "weaviate_mcp",
+    "type": "vector",
+    "transport": "http",
+    "url": "http://localhost:8001/mcp"
+  },
+  "snowflake_analytics": {
+    "name": "snowflake_analytics",
+    "type": "sql",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "your-mcp-snowflake-server"],
+    "env": {}
+  }
+}

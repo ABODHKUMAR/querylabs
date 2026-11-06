@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mysql-mcp"
+version = "0.1.0"
+description = "MCP server that exposes get_schema and execute_sql for MySQL (same pattern as querylab_sql)."
+readme = "README.md"
+packages = [{ include = "mysql_mcp" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+mcp = { version = ">=1.0", extras = ["cli"] }
+pymysql = ">=1.1"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

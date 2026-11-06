@@ -1,0 +1,324 @@
+image: atlassian/default-image:4
+
+pipelines:
+  branches:
+    querylab-mcp-autodeploy:
+      - step:
+          name: Deploy to GCP VM (Test)
+          deployment: test
+          script:
+            # ── 1. Install SSH client ───────────────────────────────────────
+            - apt-get update -qq && apt-get install -y -qq openssh-client
+
+            # ── 2. Configure SSH key ────────────────────────────────────────
+            - mkdir -p ~/.ssh
+            - |
+              echo "=== DEBUG: GCP_SSH_PRIVATE_KEY diagnostics ==="
+              if [ -z "$GCP_SSH_PRIVATE_KEY" ]; then
+                echo "ERROR: GCP_SSH_PRIVATE_KEY is EMPTY - variable not set in Bitbucket"
+                exit 1
+              fi
+              echo "Variable length (chars): $(echo -n "$GCP_SSH_PRIVATE_KEY" | wc -c)"
+              echo "Contains literal \\n: $(echo "$GCP_SSH_PRIVATE_KEY" | grep -c '\\n' || echo 0)"
+              echo "Contains BEGIN header: $(echo "$GCP_SSH_PRIVATE_KEY" | grep -c 'BEGIN OPENSSH PRIVATE KEY' || echo 0)"
+            - printf '%b' "$GCP_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+            - chmod 600 ~/.ssh/deploy_key
+            - |
+              echo "=== DEBUG: Written key file diagnostics ==="
+              echo "File size (bytes): $(wc -c < ~/.ssh/deploy_key)"
+              echo "Line count: $(wc -l < ~/.ssh/deploy_key)"
+              echo "First line: $(head -1 ~/.ssh/deploy_key)"
+              echo "Last line: $(tail -1 ~/.ssh/deploy_key)"
+              head -1 ~/.ssh/deploy_key | grep -q 'BEGIN OPENSSH PRIVATE KEY' && echo "HEADER: OK" || echo "HEADER: MISSING - key is malformed"
+              tail -1 ~/.ssh/deploy_key | grep -q 'END OPENSSH PRIVATE KEY' && echo "FOOTER: OK" || echo "FOOTER: MISSING or trailing chars"
+              echo "=== DEBUG: ssh-keygen validation ==="
+              ssh-keygen -l -f ~/.ssh/deploy_key && echo "KEY IS VALID" || (echo "ERROR: KEY IS INVALID - libcrypto error means key file is malformed" && exit 1)
+              echo "=== END DEBUG ==="
+            - ssh-keyscan -H "$GCP_VM_IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+            # ── 3. Copy generate-env.sh to VM ───────────────────────────────
+            - scp -i ~/.ssh/deploy_key scripts/generate-env.sh ${GCP_VM_USER}@${GCP_VM_IP}:/tmp/generate-env.sh
+
+            # ── 4. SSH in, generate .env files, pull & redeploy ─────────────
+            - |
+              ssh -i ~/.ssh/deploy_key ${GCP_VM_USER}@${GCP_VM_IP} \
+                "GCP_VM_IP=${GCP_VM_IP} \
+                 OPENAI_API_KEY=${OPENAI_API_KEY} \
+                 SECRET_KEY=${SECRET_KEY} \
+                 BACKEND_DB_HOST=${BACKEND_DB_HOST} \
+                 BACKEND_DB_USER=${BACKEND_DB_USER} \
+                 BACKEND_DB_PASSWORD=${BACKEND_DB_PASSWORD} \
+                 BACKEND_DB_DATABASE=${BACKEND_DB_DATABASE} \
+                 REVENUE_MYSQL_HOST=${REVENUE_MYSQL_HOST} \
+                 REVENUE_MYSQL_USER=${REVENUE_MYSQL_USER} \
+                 REVENUE_MYSQL_PASSWORD=${REVENUE_MYSQL_PASSWORD} \
+                 REVENUE_MYSQL_DATABASE=${REVENUE_MYSQL_DATABASE} \
+                 BEAT_MYSQL_HOST=${BEAT_MYSQL_HOST} \
+                 BEAT_MYSQL_USER=${BEAT_MYSQL_USER} \
+                 BEAT_MYSQL_PASSWORD=${BEAT_MYSQL_PASSWORD} \
+                 BEAT_MYSQL_DATABASE=${BEAT_MYSQL_DATABASE} \
+                 MERIDIAN_MYSQL_HOST=${MERIDIAN_MYSQL_HOST} \
+                 MERIDIAN_MYSQL_USER=${MERIDIAN_MYSQL_USER} \
+                 MERIDIAN_MYSQL_PASSWORD=${MERIDIAN_MYSQL_PASSWORD} \
+                 MERIDIAN_MYSQL_DATABASE=${MERIDIAN_MYSQL_DATABASE} \
+                 NOVADASH_MYSQL_HOST=${NOVADASH_MYSQL_HOST} \
+                 NOVADASH_MYSQL_USER=${NOVADASH_MYSQL_USER} \
+                 NOVADASH_MYSQL_PASSWORD=${NOVADASH_MYSQL_PASSWORD} \
+                 NOVADASH_MYSQL_DATABASE=${NOVADASH_MYSQL_DATABASE} \
+                 AVANI_MYSQL_HOST=${AVANI_MYSQL_HOST} \
+                 AVANI_MYSQL_USER=${AVANI_MYSQL_USER} \
+                 AVANI_MYSQL_PASSWORD=${AVANI_MYSQL_PASSWORD} \
+                 AVANI_MYSQL_DATABASE=${AVANI_MYSQL_DATABASE} \
+                 MVW_MYSQL_HOST=${MVW_MYSQL_HOST} \
+                 MVW_MYSQL_USER=${MVW_MYSQL_USER} \
+                 MVW_MYSQL_PASSWORD=${MVW_MYSQL_PASSWORD} \
+                 MVW_MYSQL_DATABASE=${MVW_MYSQL_DATABASE} \
+                 PE_TRADING_MYSQL_HOST=${PE_TRADING_MYSQL_HOST} \
+                 PE_TRADING_MYSQL_USER=${PE_TRADING_MYSQL_USER} \
+                 PE_TRADING_MYSQL_PASSWORD=${PE_TRADING_MYSQL_PASSWORD} \
+                 PE_TRADING_MYSQL_DATABASE=${PE_TRADING_MYSQL_DATABASE} \
+                 WEAVIATE_HOST=${WEAVIATE_HOST} \
+                 WEAVIATE_PORT=${WEAVIATE_PORT} \
+                 WEAVIATE_API_KEY=${WEAVIATE_API_KEY} \
+                 LANGSMITH_API_KEY=${LANGSMITH_API_KEY} \
+                 LANGSMITH_TRACING=${LANGSMITH_TRACING} \
+                 LANGSMITH_PROJECT=${LANGSMITH_PROJECT} \
+                 bash /tmp/generate-env.sh && \
+                 echo '--- verify generated .env files ---' && \
+                 ls -l /opt/querylab/.env.novadash.mcp /opt/querylab/.env.avani.mcp /opt/querylab/.env.mvw.mcp /opt/querylab/.env.pe_trading.mcp || echo 'One or more .env files missing!' && \
+                 cd /opt/querylab && \
+                 git pull origin querylab-mcp-autodeploy && \
+                 docker compose down --remove-orphans && \
+                 docker compose up --build -d"
+
+            # ── 5. Health checks (retry loop — build can take 2-3 min) ────────
+            - |
+              echo "Waiting for agents to become healthy (max 3 min)..."
+              for i in $(seq 1 18); do
+                if curl -sf http://${GCP_VM_IP}:8000/health > /dev/null 2>&1; then
+                  echo "agents /health OK (attempt $i)"
+                  break
+                fi
+                echo "Attempt $i/18 — agents not ready yet, retrying in 10s..."
+                sleep 10
+                if [ "$i" -eq 18 ]; then
+                  echo "ERROR: agents /health failed after 3 minutes"
+                  exit 1
+                fi
+              done
+            - |
+              echo "Waiting for orchestrator to become healthy (max 2 min)..."
+              for i in $(seq 1 12); do
+                if curl -sf http://${GCP_VM_IP}:8084/health > /dev/null 2>&1; then
+                  echo "orchestrator /health OK (attempt $i)"
+                  break
+                fi
+                echo "Attempt $i/12 — orchestrator not ready yet, retrying in 10s..."
+                sleep 10
+                if [ "$i" -eq 12 ]; then
+                  echo "ERROR: orchestrator /health failed after 2 minutes"
+                  exit 1
+                fi
+              done
+            - echo "Deployment successful!"
+
+    querylab_cert_autodeploy:
+      - step:
+          name: Deploy to GCP VM (Cert/HTTPS VM)
+          deployment: staging
+          script:
+            # ── 1. Install SSH client ───────────────────────────────────────
+            - apt-get update -qq && apt-get install -y -qq openssh-client
+
+            # ── 2. Configure SSH key ────────────────────────────────────────
+            - mkdir -p ~/.ssh
+            - |
+              echo "=== DEBUG: GCP_SSH_PRIVATE_KEY diagnostics ==="
+              if [ -z "$GCP_SSH_PRIVATE_KEY" ]; then
+                echo "ERROR: GCP_SSH_PRIVATE_KEY is EMPTY - variable not set in Bitbucket"
+                exit 1
+              fi
+              echo "Variable length (chars): $(echo -n "$GCP_SSH_PRIVATE_KEY" | wc -c)"
+              echo "Contains literal \\n: $(echo "$GCP_SSH_PRIVATE_KEY" | grep -c '\\n' || echo 0)"
+              echo "Contains BEGIN header: $(echo "$GCP_SSH_PRIVATE_KEY" | grep -c 'BEGIN OPENSSH PRIVATE KEY' || echo 0)"
+            - printf '%b' "$GCP_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+            - chmod 600 ~/.ssh/deploy_key
+            - |
+              echo "=== DEBUG: Written key file diagnostics ==="
+              echo "File size (bytes): $(wc -c < ~/.ssh/deploy_key)"
+              echo "Line count: $(wc -l < ~/.ssh/deploy_key)"
+              echo "First line: $(head -1 ~/.ssh/deploy_key)"
+              echo "Last line: $(tail -1 ~/.ssh/deploy_key)"
+              head -1 ~/.ssh/deploy_key | grep -q 'BEGIN OPENSSH PRIVATE KEY' && echo "HEADER: OK" || echo "HEADER: MISSING - key is malformed"
+              tail -1 ~/.ssh/deploy_key | grep -q 'END OPENSSH PRIVATE KEY' && echo "FOOTER: OK" || echo "FOOTER: MISSING or trailing chars"
+              echo "=== DEBUG: ssh-keygen validation ==="
+              ssh-keygen -l -f ~/.ssh/deploy_key && echo "KEY IS VALID" || (echo "ERROR: KEY IS INVALID - libcrypto error means key file is malformed" && exit 1)
+              echo "=== END DEBUG ==="
+            - ssh-keyscan -H "$GCP_VM_IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+            # ── 3. Copy generate-env.sh to VM ───────────────────────────────
+            - scp -i ~/.ssh/deploy_key scripts/generate-env.sh ${GCP_VM_USER}@${GCP_VM_IP}:/tmp/generate-env.sh
+
+            # ── 4. SSH in, generate .env files, pull & redeploy ─────────────
+            - |
+              ssh -i ~/.ssh/deploy_key ${GCP_VM_USER}@${GCP_VM_IP} \
+                "GCP_VM_IP=${GCP_VM_IP} \
+                 OPENAI_API_KEY=${OPENAI_API_KEY} \
+                 VECTOR_STORE_ID_RADIUM=${VECTOR_STORE_ID_RADIUM} \
+                 OPENAI_API_KEY_RADIUM=${OPENAI_API_KEY_RADIUM} \
+                 SECRET_KEY=${SECRET_KEY} \
+                 BACKEND_DB_HOST=${BACKEND_DB_HOST} \
+                 BACKEND_DB_USER=${BACKEND_DB_USER} \
+                 BACKEND_DB_PASSWORD=${BACKEND_DB_PASSWORD} \
+                 BACKEND_DB_DATABASE=${BACKEND_DB_DATABASE} \
+                 REVENUE_MYSQL_HOST=${REVENUE_MYSQL_HOST} \
+                 REVENUE_MYSQL_USER=${REVENUE_MYSQL_USER} \
+                 REVENUE_MYSQL_PASSWORD=${REVENUE_MYSQL_PASSWORD} \
+                 REVENUE_MYSQL_DATABASE=${REVENUE_MYSQL_DATABASE} \
+                 BEAT_MYSQL_HOST=${BEAT_MYSQL_HOST} \
+                 BEAT_MYSQL_USER=${BEAT_MYSQL_USER} \
+                 BEAT_MYSQL_PASSWORD=${BEAT_MYSQL_PASSWORD} \
+                 BEAT_MYSQL_DATABASE=${BEAT_MYSQL_DATABASE} \
+                 MERIDIAN_MYSQL_HOST=${MERIDIAN_MYSQL_HOST} \
+                 MERIDIAN_MYSQL_USER=${MERIDIAN_MYSQL_USER} \
+                 MERIDIAN_MYSQL_PASSWORD=${MERIDIAN_MYSQL_PASSWORD} \
+                 MERIDIAN_MYSQL_DATABASE=${MERIDIAN_MYSQL_DATABASE} \
+                 NOVADASH_MYSQL_HOST=${NOVADASH_MYSQL_HOST} \
+                 NOVADASH_MYSQL_USER=${NOVADASH_MYSQL_USER} \
+                 NOVADASH_MYSQL_PASSWORD=${NOVADASH_MYSQL_PASSWORD} \
+                 NOVADASH_MYSQL_DATABASE=${NOVADASH_MYSQL_DATABASE} \
+                 AVANI_MYSQL_HOST=${AVANI_MYSQL_HOST} \
+                 AVANI_MYSQL_USER=${AVANI_MYSQL_USER} \
+                 AVANI_MYSQL_PASSWORD=${AVANI_MYSQL_PASSWORD} \
+                 AVANI_MYSQL_DATABASE=${AVANI_MYSQL_DATABASE} \
+                 MVW_MYSQL_HOST=${MVW_MYSQL_HOST} \
+                 MVW_MYSQL_USER=${MVW_MYSQL_USER} \
+                 MVW_MYSQL_PASSWORD=${MVW_MYSQL_PASSWORD} \
+                 MVW_MYSQL_DATABASE=${MVW_MYSQL_DATABASE} \
+                 PE_TRADING_MYSQL_HOST=${PE_TRADING_MYSQL_HOST} \
+                 PE_TRADING_MYSQL_USER=${PE_TRADING_MYSQL_USER} \
+                 PE_TRADING_MYSQL_PASSWORD=${PE_TRADING_MYSQL_PASSWORD} \
+                 PE_TRADING_MYSQL_DATABASE=${PE_TRADING_MYSQL_DATABASE} \
+                 WEAVIATE_HOST=${WEAVIATE_HOST} \
+                 WEAVIATE_PORT=${WEAVIATE_PORT} \
+                 WEAVIATE_API_KEY=${WEAVIATE_API_KEY} \
+                 LANGSMITH_API_KEY=${LANGSMITH_API_KEY} \
+                 LANGSMITH_TRACING=${LANGSMITH_TRACING} \
+                 LANGSMITH_PROJECT=${LANGSMITH_PROJECT} \
+                 bash /tmp/generate-env.sh && \
+                 echo '--- verify generated .env files ---' && \
+                 ls -l /opt/querylab/.env.novadash.mcp /opt/querylab/.env.avani.mcp /opt/querylab/.env.mvw.mcp /opt/querylab/.env.pe_trading.mcp || echo 'One or more .env files missing!' && \
+                 cd /opt/querylab && \
+                 git pull origin querylab_cert_autodeploy && \
+                 docker compose down --remove-orphans && \
+                 docker compose up --build -d"
+
+            # ── 5. Health checks (retry loop — build can take 2-3 min) ────────
+            - |
+              echo "Waiting for agents to become healthy (max 3 min)..."
+              for i in $(seq 1 18); do
+                if curl -sf http://${GCP_VM_IP}:8000/health > /dev/null 2>&1; then
+                  echo "agents /health OK (attempt $i)"
+                  break
+                fi
+                echo "Attempt $i/18 — agents not ready yet, retrying in 10s..."
+                sleep 10
+                if [ "$i" -eq 18 ]; then
+                  echo "ERROR: agents /health failed after 3 minutes"
+                  exit 1
+                fi
+              done
+            - |
+              echo "Waiting for orchestrator to become healthy (max 2 min)..."
+              for i in $(seq 1 12); do
+                if curl -sf http://${GCP_VM_IP}:8084/health > /dev/null 2>&1; then
+                  echo "orchestrator /health OK (attempt $i)"
+                  break
+                fi
+                echo "Attempt $i/12 — orchestrator not ready yet, retrying in 10s..."
+                sleep 10
+                if [ "$i" -eq 12 ]; then
+                  echo "ERROR: orchestrator /health failed after 2 minutes"
+                  exit 1
+                fi
+              done
+            - echo "Deployment successful!"
+
+#   ── main branch deployment (disabled — deploy via querylab-mcp-autodeploy only) ──
+#    main:
+#      - step:
+#          name: Deploy to GCP VM
+#          deployment: production
+#          script:
+#            # ── 1. Install SSH client ───────────────────────────────────────
+#            - apt-get update -qq && apt-get install -y -qq openssh-client
+#
+#            # ── 2. Configure SSH key ────────────────────────────────────────
+#            - mkdir -p ~/.ssh
+#            - printf '%b' "$GCP_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+#            - chmod 600 ~/.ssh/deploy_key
+#            - ssh-keygen -l -f ~/.ssh/deploy_key || (echo "ERROR: deploy_key is invalid - check GCP_SSH_PRIVATE_KEY variable format" && exit 1)
+#            - ssh-keyscan -H "$GCP_VM_IP" >> ~/.ssh/known_hosts 2>/dev/null
+#
+#            # ── 3. Copy generate-env.sh to VM ───────────────────────────────
+#            - scp -i ~/.ssh/deploy_key scripts/generate-env.sh ${GCP_VM_USER}@${GCP_VM_IP}:/tmp/generate-env.sh
+#
+#            # ── 4. SSH in, generate .env files, pull & redeploy ─────────────
+#            - |
+#              ssh -i ~/.ssh/deploy_key ${GCP_VM_USER}@${GCP_VM_IP} \
+#                "GCP_VM_IP=${GCP_VM_IP} \
+#                 OPENAI_API_KEY=${OPENAI_API_KEY} \
+#                 SECRET_KEY=${SECRET_KEY} \
+#                 BACKEND_DB_HOST=${BACKEND_DB_HOST} \
+#                 BACKEND_DB_USER=${BACKEND_DB_USER} \
+#                 BACKEND_DB_PASSWORD=${BACKEND_DB_PASSWORD} \
+#                 BACKEND_DB_DATABASE=${BACKEND_DB_DATABASE} \
+#                 REVENUE_MYSQL_HOST=${REVENUE_MYSQL_HOST} \
+#                 REVENUE_MYSQL_USER=${REVENUE_MYSQL_USER} \
+#                 REVENUE_MYSQL_PASSWORD=${REVENUE_MYSQL_PASSWORD} \
+#                 REVENUE_MYSQL_DATABASE=${REVENUE_MYSQL_DATABASE} \
+#                 BEAT_MYSQL_HOST=${BEAT_MYSQL_HOST} \
+#                 BEAT_MYSQL_USER=${BEAT_MYSQL_USER} \
+#                 BEAT_MYSQL_PASSWORD=${BEAT_MYSQL_PASSWORD} \
+#                 BEAT_MYSQL_DATABASE=${BEAT_MYSQL_DATABASE} \
+#                 MERIDIAN_MYSQL_HOST=${MERIDIAN_MYSQL_HOST} \
+#                 MERIDIAN_MYSQL_USER=${MERIDIAN_MYSQL_USER} \
+#                 MERIDIAN_MYSQL_PASSWORD=${MERIDIAN_MYSQL_PASSWORD} \
+#                 MERIDIAN_MYSQL_DATABASE=${MERIDIAN_MYSQL_DATABASE} \
+#                 NOVADASH_MYSQL_HOST=${NOVADASH_MYSQL_HOST} \
+#                 NOVADASH_MYSQL_USER=${NOVADASH_MYSQL_USER} \
+#                 NOVADASH_MYSQL_PASSWORD=${NOVADASH_MYSQL_PASSWORD} \
+#                 NOVADASH_MYSQL_DATABASE=${NOVADASH_MYSQL_DATABASE} \
+#                 AVANI_MYSQL_HOST=${AVANI_MYSQL_HOST} \
+#                 AVANI_MYSQL_USER=${AVANI_MYSQL_USER} \
+#                 AVANI_MYSQL_PASSWORD=${AVANI_MYSQL_PASSWORD} \
+#                 AVANI_MYSQL_DATABASE=${AVANI_MYSQL_DATABASE} \
+#                 MVW_MYSQL_HOST=${MVW_MYSQL_HOST} \
+#                 MVW_MYSQL_USER=${MVW_MYSQL_USER} \
+#                 MVW_MYSQL_PASSWORD=${MVW_MYSQL_PASSWORD} \
+#                 MVW_MYSQL_DATABASE=${MVW_MYSQL_DATABASE} \
+#                 PE_TRADING_MYSQL_HOST=${PE_TRADING_MYSQL_HOST} \
+#                 PE_TRADING_MYSQL_USER=${PE_TRADING_MYSQL_USER} \
+#                 PE_TRADING_MYSQL_PASSWORD=${PE_TRADING_MYSQL_PASSWORD} \
+#                 PE_TRADING_MYSQL_DATABASE=${PE_TRADING_MYSQL_DATABASE} \
+#                 WEAVIATE_HOST=${WEAVIATE_HOST} \
+#                 WEAVIATE_PORT=${WEAVIATE_PORT} \
+#                 WEAVIATE_API_KEY=${WEAVIATE_API_KEY} \
+#                 LANGSMITH_API_KEY=${LANGSMITH_API_KEY} \
+#                 LANGSMITH_TRACING=${LANGSMITH_TRACING} \
+#                 LANGSMITH_PROJECT=${LANGSMITH_PROJECT} \
+#                 bash /tmp/generate-env.sh && \
+#                 cd /opt/querylab && \
+#                 git pull origin main && \
+#                 docker compose down --remove-orphans && \
+#                 docker compose up --build -d"
+#
+#            # ── 5. Health checks ────────────────────────────────────────────
+#            - sleep 30
+#            - |
+#              echo "Checking agents health..."
+#              curl -sf http://${GCP_VM_IP}:8000/health || (echo "agents /health failed" && exit 1)
+#            - |
+#              echo "Checking orchestrator health..."
+#              curl -sf http://${GCP_VM_IP}:8084/health || (echo "orchestrator /health failed" && exit 1)
+#            - echo "Deployment successful!"

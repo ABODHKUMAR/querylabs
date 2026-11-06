@@ -1,0 +1,73 @@
+{
+  "database": "meridian_ventures",
+  "description": "Venture capital portfolio tracking database with portfolio companies, founders, and quarterly performance updates",
+  "tables": [
+    {
+      "name": "portfolio_companies",
+      "description": "Core table tracking portfolio companies with current metrics and status",
+      "columns": [
+        {"name": "id", "type": "int", "primary_key": true, "description": "Unique company identifier"},
+        {"name": "name", "type": "varchar(100)", "description": "Company name"},
+        {"name": "sector", "type": "enum", "values": ["FinTech", "HealthTech", "DevTools", "B2B SaaS"], "description": "Industry sector"},
+        {"name": "stage", "type": "enum", "values": ["Seed", "Series A", "Series B"], "description": "Investment stage"},
+        {"name": "invested_date", "type": "date", "description": "Date of initial investment"},
+        {"name": "investment_usd", "type": "bigint", "description": "Total invested capital in USD"},
+        {"name": "arr_usd", "type": "bigint", "description": "Current Annual Recurring Revenue in USD"},
+        {"name": "mom_growth_pct", "type": "decimal(5,1)", "description": "Month-over-month growth percentage"},
+        {"name": "burn_rate_usd", "type": "int", "description": "Monthly cash burn in USD"},
+        {"name": "runway_months", "type": "int", "description": "Number of months until runway exhaustion"},
+        {"name": "headcount", "type": "int", "description": "Current employee count"},
+        {"name": "valuation_usd", "type": "bigint", "description": "Current company valuation in USD"},
+        {"name": "status", "type": "enum", "values": ["green", "amber", "red"], "description": "Health status indicator"},
+        {"name": "product_summary", "type": "varchar(255)", "description": "Brief product description"}
+      ]
+    },
+    {
+      "name": "founders",
+      "description": "Leadership team members and their backgrounds",
+      "columns": [
+        {"name": "id", "type": "int", "primary_key": true, "description": "Unique founder identifier"},
+        {"name": "company_id", "type": "int", "foreign_key": "portfolio_companies.id", "description": "Reference to portfolio company"},
+        {"name": "name", "type": "varchar(100)", "description": "Founder name"},
+        {"name": "role", "type": "enum", "values": ["CEO", "CTO", "CPO", "COO"], "description": "Executive role"},
+        {"name": "prior_exits", "type": "int", "description": "Number of previous successful exits"},
+        {"name": "background_summary", "type": "varchar(255)", "description": "Brief background description"}
+      ]
+    },
+    {
+      "name": "quarterly_updates",
+      "description": "Historical quarterly performance metrics for tracking company progress",
+      "columns": [
+        {"name": "id", "type": "int", "primary_key": true, "description": "Unique update identifier"},
+        {"name": "company_id", "type": "int", "foreign_key": "portfolio_companies.id", "description": "Reference to portfolio company"},
+        {"name": "quarter", "type": "char(7)", "description": "Quarter identifier (format: YYYY-Q#)"},
+        {"name": "arr_usd", "type": "bigint", "description": "ARR at end of quarter in USD"},
+        {"name": "burn_usd", "type": "int", "description": "Cash burn for the quarter in USD"},
+        {"name": "headcount", "type": "int", "description": "Headcount at end of quarter"},
+        {"name": "kpi_summary", "type": "varchar(255)", "description": "Summary of key performance indicators"}
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "founders.company_id",
+      "to": "portfolio_companies.id",
+      "description": "Each founder belongs to one portfolio company"
+    },
+    {
+      "from": "quarterly_updates.company_id",
+      "to": "portfolio_companies.id",
+      "description": "Each quarterly update belongs to one portfolio company"
+    }
+  ],
+  "common_queries": [
+    "Portfolio performance by sector/stage",
+    "Companies by health status (green/amber/red)",
+    "ARR growth trends using quarterly_updates",
+    "Burn rate and runway analysis",
+    "Founder backgrounds and prior exits",
+    "Investment returns and valuations",
+    "Top performers by ARR growth",
+    "Companies needing attention (low runway, red status)"
+  ]
+}

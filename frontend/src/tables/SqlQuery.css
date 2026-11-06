@@ -1,0 +1,25 @@
+.scroll-container {
+    max-height: 20rem;
+    font-family: 'Inter', sans-serif !important;
+}
+
+
+.sql-query-header{
+    /* color: white; */
+    /* background-color: black; */
+    padding: 0em 1em 0em 1em;
+    height: 2em;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.icon {
+    visibility: visible !important;  
+    width: 1.25rem !important;  
+    height: 1.25rem !important; 
+}
+
+
+  

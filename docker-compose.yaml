@@ -1,0 +1,312 @@
+version: '3.8'
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  querylab_mysql_data:
+  querylab_weaviate_data:
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # MySQL – your own database (Query Labs)
+  # ---------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: querylab-mysql
+    restart: unless-stopped
+    env_file:
+      - .env.mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-querylab_root}
+      - MYSQL_USER=${MYSQL_USER:-querylab}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-querylab_pass}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-querylab_auth}
+    ports:
+      - "3306:3306"
+    volumes:
+      - querylab_mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uquerylab", "-pquerylab_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  ## ---------------------------------------------------------------------------
+  # Agents API – agent/skill discovery and POST /ask (ReAct, MCP tools)
+  # ---------------------------------------------------------------------------
+  agents:
+    image: querylab-agents:latest
+    container_name: querylab-agents
+    build:
+      context: ./agents
+      dockerfile: Dockerfile
+    env_file:
+      - .env.agent
+    environment:
+      - DOCKER_RUNNING=true
+      - QUERYLAB_AGENTS_HOST=0.0.0.0
+      - QUERYLAB_AGENTS_PORT=8000
+      - QUERYLAB_AGENTS_ROOT=/app/.agents
+    volumes:
+      - ./agents/.agents:/app/.agents
+    networks:
+      - app_network
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql_mcp
+      - beat_mcp
+      - meridian_mcp
+      - novadash_mcp
+      - avani_mcp
+      - mvw_mcp
+      - pe_trading_mcp
+      - weaviate_mcp
+
+  # ---------------------------------------------------------------------------
+  # Orchestrator – streaming query + data_sources from agents API
+  # ---------------------------------------------------------------------------
+  orchestrator:
+    image: querylab-orchestrator:latest
+    container_name: querylab-orchestrator
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    env_file:
+      - .env.orchestrator
+    environment:
+      - DOCKER_RUNNING=true
+      - QUERYLAB_AGENTS_API_URL=http://agents:8000
+      - ORCHESTRATOR_HOST=0.0.0.0
+      - ORCHESTRATOR_PORT=8082
+    networks:
+      - app_network
+    ports:
+      - "8084:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      agents:
+        condition: service_started
+
+  # ---------------------------------------------------------------------------
+  # MCP: MySQL – get_schema, execute_sql (used by agents query_sql skill)
+  # From agents container use URL http://mysql_mcp:8000/mcp in MCP registry or skill .md.
+  # ---------------------------------------------------------------------------
+  mysql_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: revenue-mysql-mcp
+    build:
+      context: ./mcp_servers/mysql_mcp
+      dockerfile: Dockerfile
+    env_file:
+      - .env.revenue.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8005:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  beat_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: beat-mysql-mcp
+    env_file:
+      - .env.beat.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8006:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  meridian_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: meridian-mysql-mcp
+    env_file:
+      - .env.meridian.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8007:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  novadash_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: novadash-mysql-mcp
+    env_file:
+      - .env.novadash.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8008:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  avani_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: avani-mysql-mcp
+    env_file:
+      - .env.avani.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8009:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mvw_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: mvw-mysql-mcp
+    env_file:
+      - .env.mvw.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8010:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  pe_trading_mcp:
+    image: querylab-mysql-mcp:latest
+    container_name: pe-trading-mysql-mcp
+    env_file:
+      - .env.pe_trading.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+      - MYSQL_HOST=mysql
+    networks:
+      - app_network
+    ports:
+      - "8011:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+  # ---------------------------------------------------------------------------
+  # Weaviate – your own vector DB (Query Labs)
+  # ---------------------------------------------------------------------------
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.30.0
+    container_name: querylab-weaviate
+    restart: unless-stopped
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --scheme
+      - http
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      ENABLE_API_BASED_MODULES: "true"
+      CLUSTER_HOSTNAME: node1
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "false"
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: querylab-weaviate-key
+      AUTHENTICATION_APIKEY_USERS: querylab_admin
+      AUTHORIZATION_ENABLE_RBAC: "true"
+      AUTHORIZATION_RBAC_ROOT_USERS: querylab_admin
+      DEFAULT_VECTORIZER_MODULE: none
+      ENABLE_MODULES: ""
+    ports:
+      - "8082:8080"
+      - "50051:50051"
+    volumes:
+      - querylab_weaviate_data:/var/lib/weaviate
+    networks:
+      - app_network
+
+  # ---------------------------------------------------------------------------
+  # MCP: Weaviate – retrieve_docs_from_collection (used by agents query_vector skill)
+  # From agents container use URL http://weaviate_mcp:8001/mcp in skill .md.
+  # Single MCP serves ALL vector collections (collection_name passed as parameter).
+  # ---------------------------------------------------------------------------
+  weaviate_mcp:
+    image: querylab-weaviate-mcp:latest
+    container_name: weaviate-mcp
+    build:
+      context: ./mcp_servers/weaviate_mcp
+      dockerfile: Dockerfile
+    env_file:
+      - .env.weaviate.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8001
+      - WEAVIATE_HOST=weaviate
+      - WEAVIATE_PORT=8080
+      - WEAVIATE_API_KEY=querylab-weaviate-key
+    networks:
+      - app_network
+    ports:
+      - "8003:8001"
+    depends_on:
+      - weaviate
+  #
+  # --------------------------------------------------------------------------
+  # Frontend (existing)
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: querylab-frontend:latest
+    container_name: nodejs-frontend-mcp-v2
+    build:
+      context: ./frontend
+    environment:
+      - VITE_HOST_URL=${VITE_HOST_URL:-127.0.0.1}
+      - VITE_PORT_BACKEND_SQL=8084
+      # Absolute URL required until frontend image is rebuilt with host+port fallback.
+      - VITE_BASE_URL=${VITE_BASE_URL:-http://127.0.0.1:8084/api}
+    networks:
+      - app_network
+    ports:
+      - "5174:5173"
+    depends_on:
+      - orchestrator
+

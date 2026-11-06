@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "weaviate-mcp"
+version = "0.1.0"
+description = "MCP server that exposes Weaviate document retrieval as a tool (retrieve_docs_from_collection)."
+readme = "README.md"
+packages = [{ include = "weaviate_mcp" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+mcp = { version = ">=1.0", extras = ["cli"] }
+weaviate-client = ">=4.0"
+python-dotenv = "^1.0.0"
+openai = ">=1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

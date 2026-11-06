@@ -1,0 +1,50 @@
+{
+  "mysql_beat": {
+    "name": "mysql_beat",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://beat_mcp:8000/mcp"
+  },
+  "mysql_revenue": {
+    "name": "mysql_revenue",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://mysql_mcp:8000/mcp"
+  },
+  "mysql_meridian": {
+    "name": "mysql_meridian",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://meridian_mcp:8000/mcp"
+  },
+  "mysql_novadash": {
+    "name": "mysql_novadash",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://novadash_mcp:8000/mcp"
+  },
+  "mysql_avani": {
+    "name": "mysql_avani",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://avani_mcp:8000/mcp"
+  },
+  "mysql_mvw": {
+    "name": "mysql_mvw",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://mvw_mcp:8000/mcp"
+  },
+  "mysql_pe_trading": {
+    "name": "mysql_pe_trading",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://pe_trading_mcp:8000/mcp"
+  },
+  "weaviate_mcp": {
+    "name": "weaviate_mcp",
+    "type": "vector",
+    "transport": "http",
+    "url": "http://weaviate_mcp:8001/mcp"
+  }
+}

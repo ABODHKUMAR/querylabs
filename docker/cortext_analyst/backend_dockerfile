@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY backend_sql/experiments/cortext_analyst /app
+
+RUN pip install -r requirements.txt
+
+EXPOSE 8080
+
+CMD ["python", "analyst_fast-api.py"]

@@ -1,0 +1,259 @@
+/* Query Labs — design tokens, type system, atoms, animations */
+
+:root {
+  --paper: #FAF9F5;
+  --paper-2: #F4F1E9;
+  --surface: #FFFFFF;
+  --surface-tint: #FBFAF6;
+  --line: #E8E3D6;
+  --line-soft: #EFEBE0;
+  --line-strong: #D8D2C2;
+
+  --ink: #14110E;
+  --ink-2: #2E2A25;
+  --ink-3: #6A645C;
+  --ink-4: #9D958A;
+  --ink-5: #BFB7A9;
+
+  --brand: #5B45D8;
+  --brand-2: #4632C0;
+  --brand-soft: #EEEAFB;
+  --brand-glow: rgba(91, 69, 216, 0.12);
+
+  --pos: #2F7A52;
+  --pos-soft: #E5F1EA;
+  --neg: #B23A2F;
+  --neg-soft: #F6E6E3;
+  --warn: #B07A1A;
+  --warn-soft: #F4ECD9;
+
+  --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 14px;
+  --r-4: 20px;
+  --r-5: 28px;
+
+  --sh-1: 0 1px 0 rgba(20, 17, 14, 0.04), 0 1px 2px rgba(20, 17, 14, 0.04);
+  --sh-2: 0 1px 0 rgba(20, 17, 14, 0.04), 0 6px 18px rgba(20, 17, 14, 0.06);
+  --sh-3: 0 2px 0 rgba(20, 17, 14, 0.04), 0 18px 40px rgba(20, 17, 14, 0.10);
+  --sh-input: 0 0 0 1px var(--line), 0 1px 0 rgba(20, 17, 14, 0.02);
+  --sh-focus: 0 0 0 1px var(--brand), 0 0 0 4px var(--brand-glow);
+}
+
+.ql-root, .ql-root * {
+  box-sizing: border-box;
+}
+.ql-root {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+.ql-root button {
+  font-family: inherit;
+  color: inherit;
+}
+.ql-root textarea {
+  font-family: inherit;
+}
+
+/* ── Type ────────────────────────────────────── */
+.ql-root .mono { font-family: var(--mono); }
+.ql-root .tabular { font-variant-numeric: tabular-nums; }
+
+.ql-root .h-section {
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.ql-root .h-card {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.ql-root .body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.ql-root .body-sm {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.ql-root .label {
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+/* ── Atoms ───────────────────────────────────── */
+.ql-root .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.ql-root .chip.querylab  { background: var(--brand-soft); border-color: transparent; color: var(--brand-2); }
+.ql-root .chip.pos   { background: var(--pos-soft);  border-color: transparent; color: var(--pos); }
+.ql-root .chip.neg   { background: var(--neg-soft);  border-color: transparent; color: var(--neg); }
+.ql-root .chip.warn  { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.ql-root .chip.ghost { background: transparent; }
+
+.ql-root .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: var(--r-2);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .12s ease;
+  white-space: nowrap;
+}
+.ql-root .btn:hover { background: var(--surface-tint); border-color: var(--line-strong); }
+.ql-root .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.ql-root .btn.primary:hover { background: var(--ink-2); }
+.ql-root .btn.querylab { background: var(--brand); color: white; border-color: var(--brand); }
+.ql-root .btn.querylab:hover { background: var(--brand-2); }
+.ql-root .btn.ghost { background: transparent; border-color: transparent; }
+.ql-root .btn.ghost:hover { background: rgba(20, 17, 14, 0.05); }
+.ql-root .btn.sm { padding: 5px 9px; font-size: 12px; gap: 5px; }
+
+.ql-root .card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+}
+
+.ql-root .icn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-2);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all .12s;
+}
+.ql-root .icn:hover { background: rgba(20, 17, 14, 0.05); color: var(--ink); }
+.ql-root .icn.bordered { border-color: var(--line); background: var(--surface); }
+
+.ql-root .tick-up::before   { content: '▲'; font-size: 9px; margin-right: 3px; color: var(--pos); }
+.ql-root .tick-down::before { content: '▼'; font-size: 9px; margin-right: 3px; color: var(--neg); }
+
+/* ── Animations ──────────────────────────────── */
+@keyframes querylab-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.ql-root .shimmer {
+  background: linear-gradient(90deg, var(--paper-2) 0%, var(--surface-tint) 40%, var(--paper-2) 80%);
+  background-size: 200% 100%;
+  animation: querylab-shimmer 1.8s linear infinite;
+  border-radius: 4px;
+}
+
+@keyframes querylab-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50%       { opacity: 1;    transform: scale(1); }
+}
+.ql-root .pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  animation: querylab-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ql-thinking-orb {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.ql-root .thinking-orb {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--brand) 0deg, var(--brand-soft) 180deg, var(--brand) 360deg);
+  animation: ql-thinking-orb 1.2s linear infinite;
+  mask: radial-gradient(circle, transparent 4px, black 5px);
+  -webkit-mask: radial-gradient(circle, transparent 4px, black 5px);
+}
+
+@keyframes querylab-cursor {
+  0%, 50%   { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.ql-root .streaming-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  vertical-align: text-bottom;
+  background: var(--brand);
+  margin-left: 2px;
+  border-radius: 1px;
+  animation: querylab-cursor 0.9s steps(1, end) infinite;
+}
+
+@keyframes querylab-bars {
+  0%, 100% { transform: scaleY(0.3); }
+  50%       { transform: scaleY(1); }
+}
+.ql-root .bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.ql-root .bars span {
+  display: inline-block;
+  width: 2.5px;
+  height: 12px;
+  background: var(--brand);
+  transform-origin: 50% 50%;
+  border-radius: 1.5px;
+  animation: querylab-bars 0.9s ease-in-out infinite;
+}
+.ql-root .bars span:nth-child(2) { animation-delay: 0.15s; }
+.ql-root .bars span:nth-child(3) { animation-delay: 0.30s; }
+.ql-root .bars span:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes querylab-fadeup {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ql-root .fadeup { animation: querylab-fadeup .4s ease-out both; }

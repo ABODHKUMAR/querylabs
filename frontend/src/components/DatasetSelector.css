@@ -1,0 +1,202 @@
+/* Dataset Selector Container */
+.dataset-selector-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Header/Toggle Button */
+.dataset-selector-header {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background-color: #ffffff;
+  color: #4b5563;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dataset-selector-header:hover {
+  background-color: #f9fafb;
+}
+
+.dark .dataset-selector-header {
+  background-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.dark .dataset-selector-header:hover {
+  background-color: #334155;
+}
+
+.dataset-selector-header-icon {
+  margin-left: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Options Container */
+.dataset-options-container {
+  margin-top: 0.75rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+.dataset-options-container:hover,
+.dataset-options-container:active {
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+
+.dark .dataset-options-container:hover,
+.dark .dataset-options-container:active {
+  scrollbar-color: rgba(71, 85, 105, 0.5) transparent;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.dataset-options-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dataset-options-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dataset-options-container::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+}
+
+.dataset-options-container:hover::-webkit-scrollbar-thumb,
+.dataset-options-container:active::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5);
+}
+
+.dark .dataset-options-container:hover::-webkit-scrollbar-thumb,
+.dark .dataset-options-container:active::-webkit-scrollbar-thumb {
+  background-color: rgba(71, 85, 105, 0.5);
+}
+
+.dataset-options-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.8);
+}
+
+.dark .dataset-options-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(71, 85, 105, 0.8);
+}
+
+/* Dataset Item */
+.dataset-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Dataset Item - Selected State */
+.dataset-item.selected {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+  border-color: #93c5fd;
+}
+
+.dark .dataset-item.selected {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border-color: #3b82f6;
+}
+
+/* Dataset Item - Unselected State */
+.dataset-item.unselected {
+  background-color: #ffffff;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+
+.dataset-item.unselected:hover {
+  background-color: #f9fafb;
+}
+
+.dark .dataset-item.unselected {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+.dark .dataset-item.unselected:hover {
+  background-color: #334155;
+}
+
+/* Dataset Item Content */
+.dataset-item-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.dataset-item-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.dataset-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 10rem;
+  cursor: default;
+}
+
+/* Selection Indicator */
+.dataset-selection-indicator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Loading State */
+.dataset-loading {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.dark .dataset-loading {
+  color: #6b7280;
+}
+
+/* Tooltip Styles */
+.dataset-tooltip {
+  z-index: 50;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: #000000;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dataset-tooltip-arrow {
+  fill: #000000;
+}

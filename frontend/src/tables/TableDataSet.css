@@ -1,0 +1,78 @@
+/* Data Grid Container */
+.data-grid-container {
+    width: 100%;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Legacy scroll container - keeping for backwards compatibility */
+.scroll-container {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;
+    padding: 0px 0px !important;
+    font-family: 'Inter', sans-serif !important;
+    width: 100% !important;
+}
+
+/* DataGrid Custom Styling */
+.MuiDataGrid-root {
+    font-family: 'Inter', sans-serif !important;
+    border-radius: 8px !important;
+}
+
+.MuiDataGrid-columnHeader {
+    background-color: #f9fafb !important;
+    font-weight: 700 !important;
+}
+
+.MuiDataGrid-cell:focus,
+.MuiDataGrid-columnHeader:focus,
+.MuiDataGrid-cell:focus-within {
+    outline: none !important;
+}
+
+/* Dark Mode Support */
+.dark .MuiDataGrid-root {
+    border-color: #334155 !important;
+}
+
+.dark .MuiDataGrid-cell {
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+.dark .MuiDataGrid-columnHeaders {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+.dark .MuiDataGrid-columnHeaderTitle {
+    color: #f1f5f9 !important;
+}
+
+.dark .MuiDataGrid-row:hover {
+    background-color: #334155 !important;
+}
+
+.dark .MuiDataGrid-footerContainer {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+.dark .MuiTablePagination-root {
+    color: #e2e8f0 !important;
+}
+
+/* Legacy styles */
+.css-vi8mna-MuiPaper-root-MuiTableContainer-root {
+    box-shadow: none !important;
+    border: 1px solid !important;
+    border-color: rgb(224, 219, 219) !important;
+}
+
+.css-1usuzwp-MuiButtonBase-root-MuiTab-root.Mui-selected {
+    color: red !important;
+}
+
+.css-1qltlow-MuiTabs-indicator {
+    background-color: red !important;
+}

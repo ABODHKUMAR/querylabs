@@ -1,0 +1,64 @@
+image: atlassian/default-image:4
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Deploy to GCP VM
+          deployment: production
+          script:
+            # ── 1. Install SSH client ───────────────────────────────────────
+            - apt-get update -qq && apt-get install -y -qq openssh-client
+
+            # ── 2. Configure SSH key ────────────────────────────────────────
+            - mkdir -p ~/.ssh
+            - echo "$GCP_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+            - chmod 600 ~/.ssh/deploy_key
+            - ssh-keyscan -H "$GCP_VM_IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+            # ── 3. Copy generate-env.sh to VM ───────────────────────────────
+            - scp -i ~/.ssh/deploy_key scripts/generate-env.sh ${GCP_VM_USER}@${GCP_VM_IP}:/tmp/generate-env.sh
+
+            # ── 4. SSH in, generate .env files, pull & redeploy ─────────────
+            - |
+              ssh -i ~/.ssh/deploy_key ${GCP_VM_USER}@${GCP_VM_IP} \
+                "GCP_VM_IP=${GCP_VM_IP} \
+                 OPENAI_API_KEY=${OPENAI_API_KEY} \
+                 SECRET_KEY=${SECRET_KEY} \
+                 BACKEND_DB_HOST=${BACKEND_DB_HOST} \
+                 BACKEND_DB_USER=${BACKEND_DB_USER} \
+                 BACKEND_DB_PASSWORD=${BACKEND_DB_PASSWORD} \
+                 BACKEND_DB_DATABASE=${BACKEND_DB_DATABASE} \
+                 REVENUE_MYSQL_HOST=${REVENUE_MYSQL_HOST} \
+                 REVENUE_MYSQL_USER=${REVENUE_MYSQL_USER} \
+                 REVENUE_MYSQL_PASSWORD=${REVENUE_MYSQL_PASSWORD} \
+                 REVENUE_MYSQL_DATABASE=${REVENUE_MYSQL_DATABASE} \
+                 BEAT_MYSQL_HOST=${BEAT_MYSQL_HOST} \
+                 BEAT_MYSQL_USER=${BEAT_MYSQL_USER} \
+                 BEAT_MYSQL_PASSWORD=${BEAT_MYSQL_PASSWORD} \
+                 BEAT_MYSQL_DATABASE=${BEAT_MYSQL_DATABASE} \
+                 MERIDIAN_MYSQL_HOST=${MERIDIAN_MYSQL_HOST} \
+                 MERIDIAN_MYSQL_USER=${MERIDIAN_MYSQL_USER} \
+                 MERIDIAN_MYSQL_PASSWORD=${MERIDIAN_MYSQL_PASSWORD} \
+                 MERIDIAN_MYSQL_DATABASE=${MERIDIAN_MYSQL_DATABASE} \
+                 WEAVIATE_HOST=${WEAVIATE_HOST} \
+                 WEAVIATE_PORT=${WEAVIATE_PORT} \
+                 WEAVIATE_API_KEY=${WEAVIATE_API_KEY} \
+                 LANGSMITH_API_KEY=${LANGSMITH_API_KEY} \
+                 LANGSMITH_TRACING=${LANGSMITH_TRACING} \
+                 LANGSMITH_PROJECT=${LANGSMITH_PROJECT} \
+                 bash /tmp/generate-env.sh && \
+                 cd /opt/querylab && \
+                 git pull origin main && \
+                 docker compose down --remove-orphans && \
+                 docker compose up --build -d"
+
+            # ── 5. Health checks ────────────────────────────────────────────
+            - sleep 30
+            - |
+              echo "Checking agents health..."
+              curl -sf http://${GCP_VM_IP}:8000/health || (echo "agents /health failed" && exit 1)
+            - |
+              echo "Checking orchestrator health..."
+              curl -sf http://${GCP_VM_IP}:8084/health || (echo "orchestrator /health failed" && exit 1)
+            - echo "Deployment successful!"

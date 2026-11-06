@@ -1,0 +1,152 @@
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+venv/
+env/
+.venv/
+.conda/
+pip-log.txt
+pip-delete-this-directory.txt
+__pypackages__/
+
+#mlflow experiments
+.mlruns
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Pytest / Coverage
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+htmlcov/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyright
+.pyright/
+
+# VS Code settings
+.vscode/
+.settings/
+
+# PyCharm settings
+.idea/
+
+# Logs & temp files
+*.log
+*.out
+*.err
+logs/
+debug.log
+.DS_Store
+
+# Local development secrets
+*.env
+.env.*
+*.secret
+*.ignore_*
+
+# Docker
+docker-compose.override.yml
+*.dockerfile
+docker/mysql/data/
+
+# Ignore SQLite database files
+*.sqlite3
+*.db
+
+# Ignore large files (customize if needed)
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+*.feather
+*.orc
+
+
+# ===========================
+# Node.js (Frontend & Backend)
+# ===========================
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Build artifacts
+dist/
+build/
+.next/
+.out/
+.vercel/
+.netlify/
+
+# Dependencies
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local 
+
+# Temporary files
+.temp/
+.cache/
+.vscode/
+.idea/
+*.swp
+
+# Babel & Webpack
+.babelrc
+.nyc_output/
+coverage/
+*.tsbuildinfo
+
+# React Native / Expo
+.expo/
+.expo-shared/
+
+# Storybook
+.storybook/
+
+# MacOS system files
+.DS_Store
+/.ignore_data

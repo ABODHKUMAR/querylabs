@@ -1,0 +1,34 @@
+# Standalone Weaviate (optional). Prefer the main repo docker-compose.yaml
+# which already includes the querylab-weaviate service.
+services:
+  weaviate:
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --scheme
+      - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.30.0
+    container_name: querylab-weaviate-standalone
+    ports:
+      - "8082:8080"
+      - "50051:50051"
+    volumes:
+      - querylab_weaviate_data:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      ENABLE_API_BASED_MODULES: "true"
+      CLUSTER_HOSTNAME: node1
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "false"
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: querylab-weaviate-key
+      AUTHENTICATION_APIKEY_USERS: querylab_admin
+      AUTHORIZATION_ENABLE_RBAC: "true"
+      AUTHORIZATION_RBAC_ROOT_USERS: querylab_admin
+      DEFAULT_VECTORIZER_MODULE: none
+      ENABLE_MODULES: ""
+volumes:
+  querylab_weaviate_data:

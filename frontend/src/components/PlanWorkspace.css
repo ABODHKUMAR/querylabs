@@ -1,0 +1,742 @@
+.pw-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.dark .pw-container {
+  background: #1e293b;
+}
+
+/* ── Center states (loading / error) ─────────────────────────────────────── */
+.pw-center-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.pw-header {
+  flex-shrink: 0;
+  padding: 16px 24px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.dark .pw-header {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+.pw-breadcrumb {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.pw-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.pw-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pw-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dark .pw-title {
+  color: #f1f5f9;
+}
+
+.pw-editable-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 99px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.dark .pw-editable-badge {
+  border-color: #475569;
+  color: #94a3b8;
+}
+
+.pw-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.pw-tab {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+  padding: 4px 12px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.pw-tab:hover {
+  color: #6b7280;
+}
+
+.pw-tab-active {
+  color: #111827;
+  border-bottom-color: #111827;
+}
+
+.dark .pw-tab-active {
+  color: #f1f5f9;
+  border-bottom-color: #f1f5f9;
+}
+
+.pw-approve-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pw-approve-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #9ca3af;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dark .pw-approve-label {
+  color: #6b7280;
+}
+
+/* ── Scrollable body ──────────────────────────────────────────────────────── */
+.pw-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+  padding-bottom: 80px;
+}
+
+.pw-scroll-body::-webkit-scrollbar { width: 6px; }
+.pw-scroll-body::-webkit-scrollbar-track { background: transparent; }
+.pw-scroll-body::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+.dark .pw-scroll-body::-webkit-scrollbar-thumb { background: #334155; }
+
+/* ── Step list ────────────────────────────────────────────────────────────── */
+.pw-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pw-step-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.pw-step-card-active {
+  border-left: 3px solid #6366f1;
+}
+
+.dark .pw-step-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.pw-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.pw-step-row-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.pw-step-row-clickable:hover {
+  background: #f9fafb;
+}
+
+.dark .pw-step-row-clickable:hover {
+  background: #243347;
+}
+
+.pw-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4b5563;
+  flex-shrink: 0;
+}
+
+.dark .pw-step-num {
+  background: #334155;
+  color: #94a3b8;
+}
+
+.pw-step-desc {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.dark .pw-step-desc {
+  color: #e2e8f0;
+}
+
+.pw-step-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pw-step-error {
+  margin: 0 14px 10px 52px;
+  font-size: 11px;
+  color: #ef4444;
+}
+
+.pw-time-est {
+  font-size: 11px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.pw-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #d1d5db;
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.pw-remove-btn:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.pw-chevron {
+  color: #9ca3af;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+/* Source chips */
+.pw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.pw-chip {
+  font-size: 10px;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 99px;
+  padding: 2px 8px;
+}
+
+.dark .pw-chip {
+  background: #334155;
+  color: #94a3b8;
+}
+
+/* Confidence badge */
+.pw-confidence {
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+.pw-badge-high   { background: #dcfce7; color: #16a34a; }
+.pw-badge-medium { background: #fef9c3; color: #b45309; }
+.pw-badge-low    { background: #f3f4f6; color: #6b7280; }
+
+/* Agent badges */
+.pw-agent-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.pw-agent-badge {
+  font-size: 10px;
+  font-weight: 500;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.dark .pw-agent-badge {
+  background: #1e3a5f;
+  color: #60a5fa;
+}
+
+/* Task block */
+.pw-task-block {
+  margin: 6px 0 4px 38px;
+}
+
+.pw-task-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.pw-task-text {
+  font-size: 11px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 6px 8px;
+  line-height: 1.5;
+}
+
+/* ── Expanded edit area ───────────────────────────────────────────────────── */
+.pw-expand-area {
+  padding: 12px 14px 14px;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dark .pw-expand-area {
+  border-top-color: #334155;
+}
+
+.pw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pw-field-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pw-textarea {
+  font-size: 12px;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 7px 10px;
+  resize: none;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+
+.pw-textarea:focus {
+  border-color: #6366f1;
+}
+
+.dark .pw-textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.pw-agent-list {
+  max-height: 130px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dark .pw-agent-list {
+  border-color: #334155;
+  background: #0f172a;
+}
+
+.pw-agent-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 5px;
+  transition: background 0.1s;
+}
+
+.pw-agent-check:hover {
+  background: #f3f4f6;
+}
+
+.dark .pw-agent-check {
+  color: #cbd5e1;
+}
+
+.dark .pw-agent-check:hover {
+  background: #1e293b;
+}
+
+/* ── Add step ─────────────────────────────────────────────────────────────── */
+.pw-add-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 12px;
+}
+
+.pw-add-step-btn:hover {
+  border-color: #9ca3af;
+  color: #6b7280;
+}
+
+/* ── Constraints ──────────────────────────────────────────────────────────── */
+.pw-constraints {
+  margin-bottom: 12px;
+}
+
+/* ── Execution output (thought cards + tool calls in Run tab) ─────────────── */
+.pw-execution-output {
+  margin-top: 16px;
+  padding: 0 14px 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+/* ── Failed banner ────────────────────────────────────────────────────────── */
+.pw-failed-banner {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-top: 1px solid #fecaca;
+  background: #fff1f2;
+  border-radius: 8px;
+}
+
+/* ── Regenerate input ─────────────────────────────────────────────────────── */
+.pw-regen-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pw-regen-input {
+  flex: 1;
+  font-size: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 6px 10px;
+  outline: none;
+  background: #ffffff;
+  color: #374151;
+}
+
+.pw-regen-input:focus {
+  border-color: #6366f1;
+}
+
+.dark .pw-regen-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+/* ── Assumptions ──────────────────────────────────────────────────────────── */
+.pw-assumptions {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 14px;
+  margin-top: 4px;
+}
+
+.dark .pw-assumptions {
+  border-top-color: #334155;
+}
+
+.pw-assumptions-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.dark .pw-assumptions-title {
+  color: #e2e8f0;
+}
+
+.pw-assumption-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 12px;
+}
+
+.pw-assumption-row:last-child {
+  border-bottom: none;
+}
+
+.dark .pw-assumption-row {
+  border-bottom-color: #1e293b;
+}
+
+.pw-assumption-label {
+  font-size: 12px;
+  color: #6b7280;
+  flex: 1;
+}
+
+.dark .pw-assumption-label {
+  color: #94a3b8;
+}
+
+.pw-assumption-btns {
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dark .pw-assumption-btns {
+  border-color: #334155;
+}
+
+.pw-assumption-btn {
+  padding: 5px 12px;
+  font-size: 11px;
+  background: #ffffff;
+  color: #374151;
+  border: none;
+  border-left: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.pw-assumption-btn:first-child {
+  border-left: none;
+}
+
+.pw-assumption-btn:hover {
+  background: #f3f4f6;
+}
+
+.pw-assumption-btn-active {
+  background: #1f2937;
+  color: #ffffff;
+}
+
+.pw-assumption-btn-active:hover {
+  background: #111827;
+}
+
+.dark .pw-assumption-btn {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-left-color: #334155;
+}
+
+.dark .pw-assumption-btn-active {
+  background: #e2e8f0;
+  color: #111827;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.pw-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.dark .pw-footer {
+  background: #1e293b;
+  border-top-color: #334155;
+}
+
+.pw-footer-hint {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.pw-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pw-btn-ghost {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pw-btn-ghost:hover {
+  background: #f9fafb;
+  color: #374151;
+}
+
+.dark .pw-btn-ghost {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+.dark .pw-btn-ghost:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.pw-btn-primary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #111827;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pw-btn-primary:hover {
+  background: #1f2937;
+}
+
+.pw-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pw-btn-outline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pw-btn-outline:hover {
+  background: #f9fafb;
+}
+
+/* ── Status bar ───────────────────────────────────────────────────────────── */
+.pw-status-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.dark .pw-status-bar {
+  background: #0f172a;
+  border-top-color: #1e293b;
+  color: #6b7280;
+}
+
+.pw-restart-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  color: #9ca3af;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.pw-restart-btn:hover {
+  color: #6b7280;
+}
