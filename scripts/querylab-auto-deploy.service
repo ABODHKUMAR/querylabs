@@ -1,0 +1,17 @@
+[Unit]
+Description=Query Labs auto-deploy (git pull + docker compose)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ec2-user
+WorkingDirectory=/opt/querylab
+Environment=DEPLOY_DIR=/opt/querylab
+Environment=GIT_BRANCH=master
+Environment=REPO_URL=https://github.com/ABODHKUMAR/querylabs.git
+ExecStart=/opt/querylab/scripts/auto-deploy-watcher.sh
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

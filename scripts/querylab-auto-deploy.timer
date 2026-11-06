@@ -1,0 +1,11 @@
+[Unit]
+Description=Poll GitHub every minute and auto-deploy Query Labs
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=10s
+Unit=querylab-auto-deploy.service
+
+[Install]
+WantedBy=timers.target

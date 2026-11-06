@@ -14,6 +14,18 @@ if ! command -v docker >/dev/null 2>&1; then
   sudo usermod -aG docker "$USER" || true
 fi
 
+# Small EC2 instances OOM during frontend vite builds without swap.
+if [ ! -f /swapfile ]; then
+  echo "[INFO] Creating 4G swapfile..."
+  sudo fallocate -l 4G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  grep -q '/swapfile' /etc/fstab || echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+elif ! swapon --show | grep -q '/swapfile'; then
+  sudo swapon /swapfile || true
+fi
+
 if ! sudo docker compose version >/dev/null 2>&1; then
   echo "[INFO] Installing Docker Compose plugin..."
   sudo mkdir -p /usr/local/lib/docker/cli-plugins
