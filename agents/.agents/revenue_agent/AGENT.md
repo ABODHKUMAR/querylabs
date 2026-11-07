@@ -1,5 +1,6 @@
 ---
 name: revenue_agent
+display_name: Finance
 description: Revenue and domain analytics agent. Handles revenue, sales, COGS, forecasted revenue, timeseries, and product/region analytics questions. SQL only.
 purpose: Answer questions about revenue analytics, sales performance, COGS, forecasted revenue, timeseries data, and product/region breakdowns from the structured database.
 when_to_use: Use for revenue and domain analytics questions — revenue totals, sales breakdowns, COGS analysis, forecasted revenue, timeseries trends, product performance, regional analytics, and financial reporting metrics.

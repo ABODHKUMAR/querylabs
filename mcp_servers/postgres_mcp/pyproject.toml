@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "postgres-mcp"
+version = "0.1.0"
+description = "MCP server that exposes get_schema and execute_sql for PostgreSQL."
+readme = "README.md"
+packages = [{ include = "postgres_mcp" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+mcp = { version = ">=1.0,<2", extras = ["cli"] }
+psycopg = { version = ">=3.1", extras = ["binary"] }
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

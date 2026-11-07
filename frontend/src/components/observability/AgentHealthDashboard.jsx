@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { baseURL } from '../../api/api';
+import { formatSourceLabel } from '../../ql-design/sourceDisplayNames';
 
 function formatRelativeTime(isoString) {
   if (!isoString) return 'never';
@@ -56,8 +57,8 @@ function AgentCard({ agent, onAgentSelect }) {
       title={!hasRuns ? 'No runs recorded yet' : undefined}
     >
       <div className="flex justify-between items-start mb-3">
-        <span className="font-semibold text-text-primary text-sm leading-snug">
-          {agent.agent_name}
+        <span className="font-semibold text-text-primary text-sm leading-snug" title={agent.agent_name}>
+          {formatSourceLabel(agent.display_name || agent.agent_name)}
         </span>
         <span
           className={`${rag.colorClass} text-white text-xs font-medium px-2 py-0.5 rounded-full ml-2 shrink-0`}
@@ -115,31 +116,50 @@ const AgentHealthDashboard = ({ onAgentSelect }) => {
         if (!r.ok) throw new Error(`Runs summary: HTTP ${r.status}`);
         return r.json();
       }),
-      fetch(`${baseURL}/data_source/`).then(r => {
-        if (!r.ok) throw new Error(`Data sources: HTTP ${r.status}`);
+      // Master agents (with display_name) — not every sub-source id
+      fetch(`${baseURL}/agent_names`).then(r => {
+        if (!r.ok) throw new Error(`Agent names: HTTP ${r.status}`);
         return r.json();
       }),
     ])
-      .then(([runStats, dataSourceResp]) => {
+      .then(([runStats, agentNamesResp]) => {
         if (cancelled) return;
 
-        const allNames = (dataSourceResp?.response ?? dataSourceResp ?? []);
-        const nameList = Array.isArray(allNames) ? allNames : [];
+        const cards = agentNamesResp?.response ?? agentNamesResp ?? [];
+        const cardList = Array.isArray(cards) ? cards : [];
+        const displayByName = Object.fromEntries(
+          cardList
+            .filter((c) => c?.name)
+            .map((c) => [c.name, c.display_name || formatSourceLabel(c.name)])
+        );
 
-        const merged = [...runStats];
-        const seenNames = new Set(runStats.map(a => a.agent_name));
+        const merged = runStats.map((row) => ({
+          ...row,
+          display_name: displayByName[row.agent_name] || formatSourceLabel(row.agent_name),
+        }));
+        const seenNames = new Set(runStats.map((a) => a.agent_name));
 
-        nameList.forEach(name => {
-          if (!seenNames.has(name)) {
-            merged.push({
-              agent_name: name,
-              total_runs: 0,
-              success_rate: null,
-              p95_duration_ms: null,
-              avg_tool_calls: null,
-              last_run_at: null,
-            });
-          }
+        cardList.forEach((card) => {
+          const name = typeof card === 'string' ? card : card?.name;
+          if (!name || seenNames.has(name)) return;
+          merged.push({
+            agent_name: name,
+            display_name: (typeof card === 'object' && card.display_name) || formatSourceLabel(name),
+            total_runs: 0,
+            success_rate: null,
+            p95_duration_ms: null,
+            avg_tool_calls: null,
+            last_run_at: null,
+          });
+        });
+
+        // Prefer agents with activity first, then A–Z by display label
+        merged.sort((a, b) => {
+          const ar = a.total_runs || 0;
+          const br = b.total_runs || 0;
+          if (ar !== br) return br - ar;
+          return formatSourceLabel(a.display_name || a.agent_name)
+            .localeCompare(formatSourceLabel(b.display_name || b.agent_name));
         });
 
         setAgents(merged);

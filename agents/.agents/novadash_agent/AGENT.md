@@ -1,5 +1,6 @@
 ---
 name: novadash_agent
+display_name: Growth
 description: NovaDash SaaS analytics master agent. Handles all NovaDash questions — structured customer/revenue/usage data (SQL) and unstructured documents (CS notes, market reports, product feedback). Do NOT use for other business niches.
 purpose: Answer questions about NovaDash customer health, MRR/ARR, product adoption, renewals, support tickets, churn risk, customer success interactions, SaaS market intelligence, and product feedback.
 when_to_use: Use for any NovaDash question — customer health scores, MRR/ARR tracking, product usage analytics, renewal forecasts, support tickets, churn analysis, CS QBR notes, onboarding summaries, market competitive intelligence, and product feature requests.

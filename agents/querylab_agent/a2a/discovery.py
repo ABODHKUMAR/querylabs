@@ -144,6 +144,9 @@ def _discover_agent_cards_live(agents_root: Path, url: str) -> List[Dict]:
         card_dict["allowed_mcp_servers"] = allowed_mcp_servers
         card_dict["sub_sources"] = _normalise_list(agent_metadata.get("sub_sources"))
         card_dict["suggested_questions"] = _normalise_list(agent_metadata.get("suggested_questions"))
+        display_name = (agent_metadata.get("display_name") or "").strip()
+        if display_name:
+            card_dict["display_name"] = display_name
         cards.append(card_dict)
 
     return cards

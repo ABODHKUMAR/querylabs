@@ -2,17 +2,28 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 // Docker builds bake placeholders (__VITE_*__) and docker-entrypoint.sh replaces them at runtime.
-// Always construct from host+port so an empty VITE_BASE_URL cannot wipe the API URL.
-const host_url = import.meta.env.VITE_HOST_URL || "127.0.0.1";
-const backend_sql_port = import.meta.env.VITE_PORT_BACKEND_SQL || "8084";
-const explicitBase = (import.meta.env.VITE_BASE_URL || "").trim();
+// Resolution order:
+// 1) Same-origin /api when the page itself is HTTPS (nginx TLS) — never call http:// from https://
+// 2) Explicit absolute VITE_BASE_URL (http/https) for local / direct IP access
+// 3) Local/docker fallback http://host:port/api
+function resolveBaseURL() {
+  if (typeof window !== "undefined" && window.location.protocol === "https:") {
+    return `${window.location.origin}/api`;
+  }
+  const explicitBase = (import.meta.env.VITE_BASE_URL || "").trim();
+  if (
+    explicitBase &&
+    !explicitBase.includes("__VITE_") &&
+    /^https?:\/\//i.test(explicitBase)
+  ) {
+    return explicitBase.replace(/\/$/, "");
+  }
+  const host_url = import.meta.env.VITE_HOST_URL || "127.0.0.1";
+  const backend_sql_port = import.meta.env.VITE_PORT_BACKEND_SQL || "8084";
+  return `http://${host_url}:${backend_sql_port}/api`;
+}
 
-export const baseURL =
-  explicitBase &&
-  !explicitBase.includes("__VITE_") &&
-  /^https?:\/\//i.test(explicitBase)
-    ? explicitBase
-    : `http://${host_url}:${backend_sql_port}/api`;
+export const baseURL = resolveBaseURL();
 
 /**
  * Fetches available data collections.

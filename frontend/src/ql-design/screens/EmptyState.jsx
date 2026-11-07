@@ -4,13 +4,12 @@ import { QueryLabLogo, QueryLabWordmark, Avatar, getInitials } from '../QueryLab
 import { I } from '../icons';
 import { NavContext } from '../NavContext';
 import { fetchAgentNames } from '../../api/api';
+import { formatSourceLabel } from '../sourceDisplayNames';
 
 function fmtSourceName(col) {
-  const raw = col?.name || col?.display_name || col?.collection_id || (typeof col === 'string' ? col : '');
-  return raw
-    .replace(/_agent$/, '')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, c => c.toUpperCase()) || raw;
+  if (col?.display_name) return col.display_name;
+  const raw = col?.name || col?.collection_id || (typeof col === 'string' ? col : '');
+  return formatSourceLabel(raw);
 }
 
 export function SourceChip({ collections, collection, onCollectionChange }) {
@@ -284,10 +283,7 @@ export function EmptyState({ onSubmit }) {
                 <span className="h-section">Suggested starts</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                   {shownAgents.map((agent, gi) => {
-                    const displayName = agent.name
-                      .replace(/_agent$/, '')
-                      .replace(/_/g, ' ')
-                      .replace(/\b\w/g, c => c.toUpperCase());
+                    const displayName = fmtSourceName(agent);
                     return (
                       <div key={agent.name} className="card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

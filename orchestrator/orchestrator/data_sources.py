@@ -64,6 +64,7 @@ async def get_agent_names():
     result = [
         {
             "name": c.get("name"),
+            "display_name": c.get("display_name") or None,
             "sub_sources": c.get("sub_sources") or [],
             "suggested_questions": c.get("suggested_questions") or [],
             "allowed_skills": c.get("allowed_skills") or [],

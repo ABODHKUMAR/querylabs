@@ -92,7 +92,7 @@ const SettingsPage = () => {
   const rows = credentials[selectedTab] || [];
 
   return (
-    <div className="ql-root" style={{ display: "flex", height: "100%", minHeight: 0, background: "var(--paper)" }}>
+    <div style={{ display: "flex", flex: 1, minWidth: 0, minHeight: 0, height: "100%", background: "var(--paper)" }}>
       {/* Settings sidebar */}
       <aside
         style={{
@@ -100,10 +100,11 @@ const SettingsPage = () => {
           flexShrink: 0,
           borderRight: "1px solid var(--line)",
           background: "var(--surface)",
-          padding: "28px 16px 20px",
+          padding: "24px 14px 20px",
           display: "flex",
           flexDirection: "column",
           gap: 4,
+          overflowY: "auto",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22, padding: "0 8px" }}>
@@ -168,116 +169,130 @@ const SettingsPage = () => {
       </aside>
 
       {/* Main */}
-      <main style={{ flex: 1, minWidth: 0, overflow: "auto", padding: "28px 32px 40px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
-              {activeTab.label}
-            </h1>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--ink-4)" }}>
-              {selectedTab === "Database_Connections" && "SQL and vector data sources wired to Query Labs agents."}
-              {selectedTab === "LLM_Model_Connections" && "Models used for chat, planning, and embeddings."}
-              {selectedTab === "Token_Usage" && "Estimated daily token usage for this workspace."}
-            </p>
-          </div>
-          {selectedTab === "Database_Connections" && !loading && (
-            <button
-              type="button"
-              onClick={handleAddNew}
-              title="Add connection"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 14px",
-                borderRadius: 10,
-                border: "none",
-                background: "var(--brand)",
-                color: "#fff",
-                fontSize: 13,
-                fontWeight: 560,
-                cursor: "pointer",
-                boxShadow: "var(--sh-1)",
-              }}
-            >
-              <Plus size={16} />
-              Add
-            </button>
-          )}
-        </div>
-
-        {loading && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 280, gap: 14 }}>
-            <span className="thinking-orb" />
-            <span style={{ fontSize: 13, color: "var(--ink-3)" }}>Loading {activeTab.label.toLowerCase()}…</span>
-          </div>
-        )}
-
-        {!loading && error && (
-          <div
-            style={{
-              padding: 18,
-              borderRadius: 12,
-              border: "1px solid var(--neg-soft)",
-              background: "var(--neg-soft)",
-              color: "var(--neg)",
-              fontSize: 13,
-            }}
-          >
-            {error}
-            <button
-              type="button"
-              onClick={fetchCredentials}
-              style={{
-                marginLeft: 12,
-                border: "1px solid var(--neg)",
-                background: "transparent",
-                color: "var(--neg)",
-                borderRadius: 8,
-                padding: "4px 10px",
-                cursor: "pointer",
-                fontSize: 12,
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && selectedTab === "Token_Usage" && (
-          rows.length === 0 ? (
-            <EmptyState label="No token usage recorded yet." />
-          ) : (
-            <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)" }}>
-              <VirtualizedTable data={rows} />
+      <main
+        style={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          overflow: "auto",
+          padding: "28px 32px 40px",
+          background: "var(--surface-tint, #f7f6f4)",
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", textAlign: "left" }}>
+                {activeTab.label}
+              </h1>
+              <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--ink-4)", textAlign: "left" }}>
+                {selectedTab === "Database_Connections" && "SQL and vector data sources wired to Query Labs agents."}
+                {selectedTab === "LLM_Model_Connections" && "Models used for chat, planning, and embeddings."}
+                {selectedTab === "Token_Usage" && "Estimated daily token usage for this workspace."}
+              </p>
             </div>
-          )
-        )}
+            {selectedTab === "Database_Connections" && !loading && (
+              <button
+                type="button"
+                onClick={handleAddNew}
+                title="Add connection"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 14px",
+                  borderRadius: 10,
+                  border: "none",
+                  background: "var(--brand)",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 560,
+                  cursor: "pointer",
+                  boxShadow: "var(--sh-1)",
+                  flexShrink: 0,
+                }}
+              >
+                <Plus size={16} />
+                Add
+              </button>
+            )}
+          </div>
 
-        {!loading && !error && selectedTab !== "Token_Usage" && (
-          rows.length === 0 ? (
-            <EmptyState label={`No ${activeTab.label.toLowerCase()} configured yet.`} />
-          ) : (
+          {loading && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 280, gap: 14 }}>
+              <span className="thinking-orb" />
+              <span style={{ fontSize: 13, color: "var(--ink-3)" }}>Loading {activeTab.label.toLowerCase()}…</span>
+            </div>
+          )}
+
+          {!loading && error && (
             <div
               style={{
-                display: "grid",
-                gap: 14,
-                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                padding: 18,
+                borderRadius: 12,
+                border: "1px solid var(--neg-soft)",
+                background: "var(--neg-soft)",
+                color: "var(--neg)",
+                fontSize: 13,
+                textAlign: "left",
               }}
             >
-              {rows.map((item, index) => (
-                <ResourceCard
-                  key={item.id || item.metadata_config?.id || index}
-                  item={item}
-                  tab={selectedTab}
-                  togglingId={togglingId}
-                  onOpen={() => handleOpenModal(item)}
-                  onToggle={() => handleToggleClick(item)}
-                />
-              ))}
+              {error}
+              <button
+                type="button"
+                onClick={fetchCredentials}
+                style={{
+                  marginLeft: 12,
+                  border: "1px solid var(--neg)",
+                  background: "transparent",
+                  color: "var(--neg)",
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  cursor: "pointer",
+                  fontSize: 12,
+                }}
+              >
+                Retry
+              </button>
             </div>
-          )
-        )}
+          )}
+
+          {!loading && !error && selectedTab === "Token_Usage" && (
+            rows.length === 0 ? (
+              <EmptyState label="No token usage recorded yet." />
+            ) : (
+              <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)" }}>
+                <VirtualizedTable data={rows} />
+              </div>
+            )
+          )}
+
+          {!loading && !error && selectedTab !== "Token_Usage" && (
+            rows.length === 0 ? (
+              <EmptyState label={`No ${activeTab.label.toLowerCase()} configured yet.`} />
+            ) : (
+              <div
+                style={{
+                  display: "grid",
+                  gap: 14,
+                  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+                  alignItems: "stretch",
+                }}
+              >
+                {rows.map((item, index) => (
+                  <ResourceCard
+                    key={item.id || item.metadata_config?.id || index}
+                    item={item}
+                    tab={selectedTab}
+                    togglingId={togglingId}
+                    onOpen={() => handleOpenModal(item)}
+                    onToggle={() => handleToggleClick(item)}
+                  />
+                ))}
+              </div>
+            )
+          )}
+        </div>
 
         {selectedTab === "Database_Connections" && (
           <CreateConnection
@@ -314,12 +329,35 @@ function EmptyState({ label }) {
   );
 }
 
+/** Friendly labels so internal/client DB names are not shown in Settings. */
+const DB_LABELS = {
+  financial_metrics: "finance_metrics",
+  beat_results_dev: "qa_results",
+  meridian_ventures: "portfolio_db",
+  novadash: "growth_db",
+  avani: "retail_db",
+  mvw: "hospitality_db",
+  pe_trading_db: "markets_db",
+  "querylab collections": "querylab collections",
+  neondb: "neondb",
+};
+
+function friendlyHost(host) {
+  if (!host || host === "N/A") return "N/A";
+  if (host === "mysql" || host === "weaviate") return host;
+  // Truncate long cloud hosts without dumping the full endpoint
+  if (String(host).includes("neon.tech") || String(host).includes("pooler")) return "neon pooler";
+  return String(host).length > 28 ? `${String(host).slice(0, 26)}…` : host;
+}
+
 function ResourceCard({ item, tab, togglingId, onOpen, onToggle }) {
   const isDb = tab === "Database_Connections";
   const active = isDb ? !!item.metadata_config?.is_active : item.is_active === 1;
   const title = isDb
     ? item?.metadata_config?.sementic_name || "Resource"
     : item.model_type || item.model || "Model";
+  const rawDb = item.config?.DATABASE;
+  const dbLabel = rawDb ? (DB_LABELS[rawDb] || rawDb) : null;
 
   return (
     <div
@@ -337,6 +375,10 @@ function ResourceCard({ item, tab, togglingId, onOpen, onToggle }) {
         cursor: isDb ? "pointer" : "default",
         overflow: "hidden",
         transition: "box-shadow .12s, border-color .12s",
+        textAlign: "left",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = "var(--sh-2)";
@@ -359,7 +401,18 @@ function ResourceCard({ item, tab, togglingId, onOpen, onToggle }) {
       />
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", lineHeight: 1.35 }}>{title}</div>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--ink)",
+            lineHeight: 1.35,
+            wordBreak: "break-word",
+            textAlign: "left",
+          }}
+        >
+          {title}
+        </div>
         {isDb && (
           <button
             type="button"
@@ -376,6 +429,7 @@ function ResourceCard({ item, tab, togglingId, onOpen, onToggle }) {
               padding: 0,
               opacity: togglingId === item.metadata_config?.id ? 0.5 : 1,
               color: active ? "var(--pos)" : "var(--warn)",
+              flexShrink: 0,
             }}
           >
             {active ? <ToggleRight size={22} /> : <ToggleLeft size={22} />}
@@ -383,12 +437,12 @@ function ResourceCard({ item, tab, togglingId, onOpen, onToggle }) {
         )}
       </div>
 
-      <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 5, fontSize: 12.5, color: "var(--ink-3)" }}>
+      <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 5, fontSize: 12.5, color: "var(--ink-3)", flex: 1 }}>
         {isDb ? (
           <>
             <MetaRow label="Type" value={item.DB_TYPE} />
-            <MetaRow label="Host" value={item.config?.SERVER_HOSTNAME || item.config?.HOST || "N/A"} />
-            {item.config?.DATABASE && <MetaRow label="Database" value={item.config.DATABASE} />}
+            <MetaRow label="Host" value={friendlyHost(item.config?.SERVER_HOSTNAME || item.config?.HOST || "N/A")} />
+            {dbLabel && <MetaRow label="Database" value={dbLabel} />}
             <MetaRow label="Last sync" value={item.updated_at || "N/A"} />
           </>
         ) : (

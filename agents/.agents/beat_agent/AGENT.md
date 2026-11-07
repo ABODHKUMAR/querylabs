@@ -1,5 +1,6 @@
 ---
 name: beat_agent
+display_name: Observability
 description: Beat data quality and observability agent. Handles all Beat framework questions — test execution status, data validation results, profiling metrics, DAG/scenario queries, and Beat analytics. SQL only.
 purpose: Answer questions about Beat data quality testing — test case execution history, scenario status, DAG runs, validation results, profiling metrics, test plan configuration, and observability analytics.
 when_to_use: Use for Beat framework questions — test execution status, failed/passed test cases, scenario names, dag_id, execution timing, data validation results (count diff, null checks), test plan configuration, alert reports, and Beat observability metrics.

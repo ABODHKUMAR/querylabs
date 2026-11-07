@@ -9,8 +9,6 @@ import { clearAuthSession } from '../../components/hooks/helpers';
 const NAV_ITEMS = [
   { key: 'ask',           icon: <I.plus />,     label: 'Ask',          route: '/querylab' },
   { key: 'history',       icon: <I.history />,  label: 'History',      route: '/querylab/history' },
-  { key: 'sources',       icon: <I.database />, label: 'Sources',      route: null },
-  { key: 'library',       icon: <I.doc />,      label: 'Library',      route: null },
   { key: 'observability', icon: <I.bolt />,     label: 'Observability',route: '/querylab/observability' },
 ];
 

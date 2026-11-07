@@ -1,5 +1,6 @@
 ---
 name: forge_agent
+display_name: Markets
 description: Forge Global master agent. Handles all Forge private equity and trading questions — structured investor/trade/compliance data (SQL) and unstructured documents (KYC/AML reports, SEC Form D filings, valuation memos). Do NOT use for other business niches.
 purpose: Answer questions about Forge Global private equity — investor profiles, securities, orders, trades, settlements, KYC/AML compliance, regulatory filings, CRM, KYC investigation reports, SEC Form D filings, and valuation memos.
 when_to_use: Use for any Forge Global question — investor accreditation/KYC, AML alerts, trade execution, settlement status, asset holdings, cap tables, regulatory filings, CRM tiers, KYC/AML case investigations, Form D offerings, 409A valuations, and board-level valuation discussions.

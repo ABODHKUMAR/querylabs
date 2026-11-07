@@ -1,5 +1,6 @@
 ---
 name: meridian_agent
+display_name: Portfolio
 description: Meridian Ventures master agent. Handles all Meridian venture capital questions — structured portfolio/founder/quarterly data (SQL) and unstructured documents (board meeting notes, market sector reports, investment memos). Do NOT use for other business niches.
 purpose: Answer questions about Meridian Ventures portfolio companies, investment performance, founder backgrounds, quarterly metrics, board governance decisions, market sector analysis, and investment due diligence.
 when_to_use: Use for any Meridian Ventures question — portfolio company health (green/amber/red), ARR growth, burn rate, runway, founder backgrounds, quarterly KPIs, board resolutions, strategic governance decisions, market sector intelligence, and investment memos.

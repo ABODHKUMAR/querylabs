@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { baseURL } from '../../api/api';
 import ExecutionWaterfall from './ExecutionWaterfall';
+import { formatSourceLabel } from '../../ql-design/sourceDisplayNames';
 
 const PAGE_SIZE = 20;
 
@@ -220,7 +221,9 @@ const AuditTrailTable = ({ initialAgent = null }) => {
               >
                 <td className="px-3 py-2 whitespace-nowrap text-text-secondary text-xs">{formatTs(row.created_at)}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-text-primary">{truncate(row.user_id, 16)}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-text-primary font-medium">{row.agent_name ?? '—'}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-text-primary font-medium" title={row.agent_name ?? ''}>
+                  {row.agent_name ? formatSourceLabel(row.agent_name) : '—'}
+                </td>
                 <td className="px-3 py-2 whitespace-nowrap text-text-secondary">{row.skill_name ?? row.skill_type ?? '—'}</td>
                 <td className="px-3 py-2 max-w-[220px] text-text-primary">{truncate(row.question_snippet, 60)}</td>
                 <td className="px-3 py-2 whitespace-nowrap"><OutcomeBadge outcome={row.outcome} /></td>

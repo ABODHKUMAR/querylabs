@@ -5,6 +5,7 @@ import { NavRail } from '../shell/NavRail';
 import { I } from '../icons';
 import { QueryLabLogo } from '../QueryLabLogo';
 import { fetchAllHistory } from '../../api/api';
+import { formatSourceLabel } from '../sourceDisplayNames';
 
 function timeGroup(dttm) {
   if (!dttm) return 'Older';
@@ -49,7 +50,7 @@ function SkeletonRow() {
 function HistoryItem({ item, onClick }) {
   const [hov, setHov] = useState(false);
   const title = item.title || 'Untitled conversation';
-  const agent = item.agent_name || '';
+  const agent = item.agent_name ? formatSourceLabel(item.agent_name) : '';
   const dateStr = item.dttm ? `${fmtDate(item.dttm)} · ${fmtTime(item.dttm)}` : '';
 
   return (
@@ -82,10 +83,13 @@ function HistoryItem({ item, onClick }) {
           {agent && (
             <>
               <span style={{ fontSize: 11, color: 'var(--ink-5)' }}>·</span>
-              <span style={{
-                fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--brand-2)',
-                background: 'var(--brand-soft)', padding: '1px 6px', borderRadius: 4,
-              }}>
+              <span
+                title={item.agent_name || ''}
+                style={{
+                  fontSize: 10.5, fontWeight: 500, color: 'var(--brand-2)',
+                  background: 'var(--brand-soft)', padding: '1px 6px', borderRadius: 4,
+                }}
+              >
                 {agent}
               </span>
             </>
@@ -169,7 +173,10 @@ export function QueryLabHistoryPage() {
   };
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', background: 'var(--paper)' }}>
+    <div
+      className="ql-root"
+      style={{ width: '100vw', height: '100vh', overflow: 'hidden', display: 'flex', background: 'var(--paper)' }}
+    >
       <NavRail active="history" />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>

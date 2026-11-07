@@ -1,5 +1,6 @@
 ---
 name: mvw_agent
+display_name: Hospitality
 description: Marriott Vacations Worldwide (MVW) master agent. Handles all MVW questions — structured resort/owner/financial data (SQL) and unstructured documents (resort GM reports, owner feedback, market intelligence). Do NOT use for other business niches.
 purpose: Answer questions about MVW resort performance, VPG, owner maintenance fee risk, owner activity, portfolio financials, GM operational reports, owner satisfaction feedback, and vacation ownership market intelligence.
 when_to_use: Use for any MVW question — resort occupancy, VPG trends, owner delinquency, sales tour metrics, portfolio revenue, GM quarterly reports, owner verbatim feedback, CS agent notes, and vacation ownership industry/competitive intelligence.

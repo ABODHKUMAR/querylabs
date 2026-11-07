@@ -1,5 +1,6 @@
 ---
 name: radium_agent
+display_name: Radium
 description: Radium master agent. Handles questions about practice/offering documentation stored in Radium's OpenAI vector store — currently RPA, Data Engineering, Strategy, Snowflake, and Services & Solutions practice decks (RPA has the most detail so far). Vector search only.
 purpose: Answer questions about practice areas and offerings using the documents in Radium's OpenAI vector store, including RPA (Robotic Process Automation), Data Engineering, Strategy, Snowflake, and Services & Solutions.
 when_to_use: Use for any question about practice/offering documentation covered in the Radium vector store — RPA services/benefits/case studies, Data Engineering capabilities, Strategy practice decks, Snowflake practice/offering details, or Services & Solutions offerings. (This list will be enriched further as more documents are added or existing ones are reviewed in detail.)

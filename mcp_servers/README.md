@@ -12,6 +12,16 @@ Exposes **get_schema** and **execute_sql** for MySQL (same pattern as `backend_s
 
 See `mysql_mcp/README.md` and `mysql_mcp/.env.example`.
 
+## PostgreSQL MCP (`postgres_mcp`)
+
+Exposes **get_schema** and **execute_sql** for PostgreSQL / Neon. Used by the Kestiq agent (`postgres_kestiq`).
+
+- **Default: HTTP server** – `poetry run python -m postgres_mcp.server` (listens on `http://0.0.0.0:8000/mcp`).
+- **Config**: `POSTGRES_*` in `.env` (or `.env.kestiq.mcp` via Docker); optional `MCP_HOST`, `MCP_PORT`.
+- **Docker**: `kestiq_mcp` on host port `8012`.
+
+See `postgres_mcp/README.md`.
+
 ## Weaviate MCP (`weaviate_mcp`)
 
 Exposes **retrieve_docs_from_collection**: hybrid search over a Weaviate collection and returns document contents (same retrieval pattern as `backend_sql/querylab_sql`).

@@ -24,7 +24,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 1,
-            "sementic_name": "Revenue / Analytics (financial_metrics)",
+            "sementic_name": "Finance Metrics",
             "is_active": True,
             "provider": "mysql_mcp",
         },
@@ -42,7 +42,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 2,
-            "sementic_name": "Beat Observability (beat_results_dev)",
+            "sementic_name": "QA Observability",
             "is_active": True,
             "provider": "beat_mcp",
         },
@@ -60,7 +60,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 3,
-            "sementic_name": "Meridian Ventures",
+            "sementic_name": "Portfolio Lab",
             "is_active": True,
             "provider": "meridian_mcp",
         },
@@ -78,7 +78,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 4,
-            "sementic_name": "NovaDash",
+            "sementic_name": "Growth Analytics",
             "is_active": True,
             "provider": "novadash_mcp",
         },
@@ -96,7 +96,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 5,
-            "sementic_name": "Avani Lifestyle",
+            "sementic_name": "Retail Ops",
             "is_active": True,
             "provider": "avani_mcp",
         },
@@ -114,7 +114,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 6,
-            "sementic_name": "MVW Resorts",
+            "sementic_name": "Hospitality Lab",
             "is_active": True,
             "provider": "mvw_mcp",
         },
@@ -132,7 +132,7 @@ _CONNECTIONS: list[dict[str, Any]] = [
         "is_active": 1,
         "metadata_config": {
             "id": 7,
-            "sementic_name": "Forge / PE Trading",
+            "sementic_name": "Markets Desk",
             "is_active": True,
             "provider": "pe_trading_mcp",
         },
@@ -159,6 +159,24 @@ _CONNECTIONS: list[dict[str, Any]] = [
             "PORT": 8080,
             "DATABASE": "querylab collections",
             "USER": "querylab_admin",
+        },
+    },
+    {
+        "id": 9,
+        "DB_TYPE": "postgres",
+        "updated_at": "2026-11-07",
+        "is_active": 1,
+        "metadata_config": {
+            "id": 9,
+            "sementic_name": "Kestiq",
+            "is_active": True,
+            "provider": "kestiq_mcp",
+        },
+        "config": {
+            "HOST": "ep-soft-silence-az1c8c2c-pooler.c-3.ap-southeast-1.aws.neon.tech",
+            "PORT": 5432,
+            "DATABASE": "neondb",
+            "USER": "neondb_owner",
         },
     },
 ]

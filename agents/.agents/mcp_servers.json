@@ -41,6 +41,12 @@
     "transport": "http",
     "url": "http://localhost:8011/mcp"
   },
+  "postgres_kestiq": {
+    "name": "postgres_kestiq",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://localhost:8012/mcp"
+  },
   "weaviate_mcp": {
     "name": "weaviate_mcp",
     "type": "vector",

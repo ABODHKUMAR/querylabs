@@ -5,6 +5,17 @@ import { ThreadHeader, ThreadMessage, ThreadComposer } from '../shell/ThreadPane
 import { QueryLabLogo } from '../QueryLabLogo';
 import { I } from '../icons';
 import { fetchAgentNames } from '../../api/api';
+import { formatSourceLabel } from '../sourceDisplayNames';
+
+function agentLabel(agentOrName, agents = []) {
+  if (!agentOrName) return '';
+  if (typeof agentOrName === 'object') {
+    return agentOrName.display_name || formatSourceLabel(agentOrName.name);
+  }
+  const card = (agents || []).find((c) => (typeof c === 'string' ? c : c.name) === agentOrName);
+  if (card && typeof card === 'object' && card.display_name) return card.display_name;
+  return formatSourceLabel(agentOrName);
+}
 
 // ── Normalise incoming step — SPREAD ORIGINAL FIRST so backend fields survive ─
 function normStep(step, i) {
@@ -118,10 +129,14 @@ function StepCard({ index, step, expanded, onToggle, onUpdate, onRemove, agents 
           {(agentList.length > 0 || displaySubs.length > 0) && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
               {agentList.map(a => (
-                <span key={a} className="chip" style={{ fontSize: 10.5, background: 'var(--brand-soft)', color: 'var(--brand-2)', border: 'none' }}>{a}</span>
+                <span key={a} className="chip" style={{ fontSize: 10.5, background: 'var(--brand-soft)', color: 'var(--brand-2)', border: 'none' }} title={a}>
+                  {agentLabel(a, agents)}
+                </span>
               ))}
               {displaySubs.slice(0, 4).map(s => (
-                <span key={s} className="chip ghost" style={{ fontSize: 10, color: 'var(--ink-4)' }}>{s}</span>
+                <span key={s} className="chip ghost" style={{ fontSize: 10, color: 'var(--ink-4)' }} title={s}>
+                  {formatSourceLabel(s)}
+                </span>
               ))}
               {displaySubs.length > 4 && (
                 <span className="chip ghost" style={{ fontSize: 10, color: 'var(--ink-4)' }}>+{displaySubs.length - 4} more</span>
@@ -194,7 +209,9 @@ function StepCard({ index, step, expanded, onToggle, onUpdate, onRemove, agents 
                         onChange={() => toggleAgent(name)}
                         style={{ width: 13, height: 13, accentColor: 'var(--brand)', flexShrink: 0, cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: 12.5, color: 'var(--ink-2)', fontFamily: 'var(--sans)' }}>{name}</span>
+                      <span style={{ fontSize: 12.5, color: 'var(--ink-2)', fontFamily: 'var(--sans)' }} title={name}>
+                        {agentLabel(a, agents)}
+                      </span>
                     </label>
                   );
                 })}
@@ -228,7 +245,9 @@ function StepCard({ index, step, expanded, onToggle, onUpdate, onRemove, agents 
                         onChange={() => toggleSub(src)}
                         style={{ width: 13, height: 13, accentColor: 'var(--brand)', flexShrink: 0, cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: 12.5, color: 'var(--ink-2)', fontFamily: 'var(--sans)' }}>{src}</span>
+                      <span style={{ fontSize: 12.5, color: 'var(--ink-2)', fontFamily: 'var(--sans)' }} title={src}>
+                        {formatSourceLabel(src)}
+                      </span>
                     </label>
                   );
                 })}

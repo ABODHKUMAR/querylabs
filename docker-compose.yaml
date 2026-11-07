@@ -68,6 +68,7 @@ services:
       - avani_mcp
       - mvw_mcp
       - pe_trading_mcp
+      - kestiq_mcp
       - weaviate_mcp
 
   # ---------------------------------------------------------------------------
@@ -228,6 +229,28 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # MCP: Postgres – Kestiq (Neon). get_schema + execute_sql
+  # From agents container: http://kestiq_mcp:8000/mcp
+  # ---------------------------------------------------------------------------
+  kestiq_mcp:
+    image: querylab-postgres-mcp:latest
+    container_name: kestiq-postgres-mcp
+    build:
+      context: ./mcp_servers/postgres_mcp
+      dockerfile: Dockerfile
+    env_file:
+      - .env.kestiq.mcp
+    environment:
+      - DOCKER_RUNNING=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+    networks:
+      - app_network
+    ports:
+      - "8012:8000"
+
   # ---------------------------------------------------------------------------
   # Weaviate – your own vector DB (Query Labs)
   # ---------------------------------------------------------------------------

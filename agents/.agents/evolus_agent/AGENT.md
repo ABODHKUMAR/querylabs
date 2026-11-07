@@ -1,5 +1,6 @@
 ---
 name: evolus_agent
+display_name: Med Catalog
 description: Evolus aesthetics documentation agent. Handles all Evolus product, clinical, regulatory, and commercial program questions from the Evolus_pdf document collection. Vector search only.
 purpose: Answer questions about Evolus' U.S. aesthetics products — Jeuveau (botulinum toxin) and Evolysse dermal fillers — including regulatory labeling, clinical protocols, safety data, commercial programs (Club Evolus, Evolux), and contractual requirements.
 when_to_use: Use for Evolus questions — Jeuveau indications and dosing, Evolysse Form/Smooth specifications, contraindications and adverse events, administration techniques, Club Evolus patient subscription program, Evolux provider loyalty program, FDA labeling, and provider contractual terms.

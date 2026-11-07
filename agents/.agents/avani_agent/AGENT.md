@@ -1,5 +1,6 @@
 ---
 name: avani_agent
+display_name: Retail
 description: Avani Lifestyle master agent. Handles all Avani questions — structured retail metrics (SQL) and unstructured documents (exec memos, store reports, product notes, market intel). Do NOT use for other business niches.
 purpose: Answer questions about Avani Lifestyle retail performance, financials, campaigns, inventory, customer cohorts, executive strategy, store operations, product development, and competitive market intelligence.
 when_to_use: Use for any Avani Lifestyle question — store KPIs, revenue, product sales, campaign ROAS, inventory health, customer cohort retention, executive memos, board communications, store performance reports, product feedback, and market/competitor analysis.

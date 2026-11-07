@@ -3,6 +3,7 @@ import {
   ChevronDown, Loader2, CheckCircle2, XCircle,
   Trash2, GripVertical, RotateCcw, Brain,
 } from 'lucide-react';
+import { formatSourceLabel } from '../ql-design/sourceDisplayNames';
 
 // ── Status icon per step ───────────────────────────────────────────────────
 
@@ -193,8 +194,8 @@ const AnalysisPlan = ({
                     <div className="flex items-center gap-1.5 flex-wrap pl-7">
                       <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Agent{agents.length > 1 ? 's' : ''}:</span>
                       {agents.map(name => (
-                        <span key={name} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                          {name}
+                        <span key={name} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" title={name}>
+                          {formatSourceLabel(name)}
                         </span>
                       ))}
                     </div>
@@ -225,8 +226,8 @@ const AnalysisPlan = ({
                             ? step.sub_sources
                             : step.data_source ? [step.data_source] : []
                         ).map(src => (
-                          <span key={src} className="px-1.5 py-0.5 rounded text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                            {src}
+                          <span key={src} className="px-1.5 py-0.5 rounded text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" title={src}>
+                            {formatSourceLabel(src)}
                           </span>
                         ))}
                       </div>
@@ -266,8 +267,8 @@ const AnalysisPlan = ({
                       ? step.sub_sources
                       : step.data_source ? [step.data_source] : []
                   ).map(src => (
-                    <span key={src} className="px-1.5 py-0.5 rounded text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                      {src}
+                    <span key={src} className="px-1.5 py-0.5 rounded text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" title={src}>
+                      {formatSourceLabel(src)}
                     </span>
                   ))}
                 </div>
@@ -349,7 +350,7 @@ const AnalysisPlan = ({
                   <div className="flex items-center gap-1 flex-shrink-0 flex-wrap max-w-[200px]">
                     {step.agent_name.split(',').map(a => a.trim()).filter(Boolean).map(name => (
                       <span key={name} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 truncate max-w-[96px]" title={name}>
-                        {name}
+                        {formatSourceLabel(name)}
                       </span>
                     ))}
                   </div>
@@ -408,8 +409,8 @@ const AnalysisPlan = ({
                                 onChange={() => toggle(name)}
                                 className="w-3 h-3 accent-blue-600 flex-shrink-0"
                               />
-                              <span className="text-xs text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                {name}
+                              <span className="text-xs text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" title={name}>
+                                {formatSourceLabel(name)}
                               </span>
                             </label>
                           );
@@ -447,8 +448,8 @@ const AnalysisPlan = ({
                                 onChange={toggle}
                                 className="w-3 h-3 accent-purple-600 flex-shrink-0"
                               />
-                              <span className="text-xs text-gray-700 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                                {src}
+                              <span className="text-xs text-gray-700 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" title={src}>
+                                {formatSourceLabel(src)}
                               </span>
                             </label>
                           );

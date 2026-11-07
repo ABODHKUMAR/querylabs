@@ -41,6 +41,12 @@
     "transport": "http",
     "url": "http://pe_trading_mcp:8000/mcp"
   },
+  "postgres_kestiq": {
+    "name": "postgres_kestiq",
+    "type": "sql",
+    "transport": "http",
+    "url": "http://kestiq_mcp:8000/mcp"
+  },
   "weaviate_mcp": {
     "name": "weaviate_mcp",
     "type": "vector",
