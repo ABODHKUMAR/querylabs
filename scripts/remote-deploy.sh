@@ -65,7 +65,8 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 (
   cd "$DEPLOY_DIR/frontend"
-  npm ci --omit=dev 2>/dev/null || npm ci
+  # Build deps (vite) live in devDependencies, so do not use --omit=dev here.
+  npm ci || npm install
   NODE_OPTIONS=--max-old-space-size=1536 npm run build
 )
 export FRONTEND_DOCKERFILE=dockerfile.prebuilt
