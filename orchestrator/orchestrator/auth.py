@@ -1,5 +1,6 @@
 """JWT verification (compatible with querylab_sql tokens) and access token creation."""
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 import bcrypt
 import jwt
@@ -32,16 +33,29 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 
-def create_access_token(user_id: str, role: str) -> str:
-    """JWT claims aligned with querylab_sql `security.create_access_token` (sub, role, exp)."""
+def create_access_token(
+    user_id: str,
+    role: str,
+    *,
+    expires_minutes: Optional[int] = None,
+    extra_claims: Optional[dict] = None,
+) -> str:
+    """JWT claims aligned with querylab_sql `security.create_access_token` (sub, role, exp).
+
+    Guest sessions pass ``expires_minutes`` to override the normal 24h lifetime and
+    ``extra_claims`` for guest-only metadata (``is_guest`` / ``origin``).
+    """
     secret = _require_secret()
     sec = get_security_settings()
-    exp = datetime.now(timezone.utc) + timedelta(minutes=sec.ACCESS_TOKEN_EXPIRE_MINUTES)
+    lifetime = sec.ACCESS_TOKEN_EXPIRE_MINUTES if expires_minutes is None else int(expires_minutes)
+    exp = datetime.now(timezone.utc) + timedelta(minutes=lifetime)
     payload = {
         "sub": user_id,
         "role": role,
         "exp": exp,
     }
+    if extra_claims:
+        payload.update(extra_claims)
     return jwt.encode(payload, secret, algorithm=JWT_ALGORITHM)
 
 

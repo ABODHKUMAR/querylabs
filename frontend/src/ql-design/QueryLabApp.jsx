@@ -11,6 +11,7 @@ import { ThinkingView } from './screens/ThinkingView';
 import { Workbench, InlineHistory } from './screens/Workbench';
 import { ExecView } from './screens/ExecView';
 import { generateAnalysisPlan, fetchAgentNames, streamDataForQuery, fetchConversations } from '../api/api';
+import { clearAuthSession, isGuestSessionExpired } from '../components/hooks/helpers';
 
 function mkSessionId() {
   try { return crypto.randomUUID(); } catch { return Math.random().toString(36).slice(2); }
@@ -48,9 +49,20 @@ export default function QueryLabApp() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Auth guard — bounce to login if no token
+  // Auth guard — bounce to login if there is no token or the guest session expired
   useEffect(() => {
-    if (!Cookies.get('authToken')) navigate('/');
+    if (!Cookies.get('authToken') || isGuestSessionExpired()) {
+      clearAuthSession();
+      navigate('/');
+      return;
+    }
+    const expiresAt = Number(localStorage.getItem('ql_guestExpiresAt') || 0);
+    if (!expiresAt) return;
+    const timer = setTimeout(() => {
+      clearAuthSession();
+      navigate('/');
+    }, Math.max(0, expiresAt - Date.now()));
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   // Use the same session/user IDs as ChatBox so the backend recognises the session

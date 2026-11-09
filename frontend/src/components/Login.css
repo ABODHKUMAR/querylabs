@@ -95,7 +95,8 @@
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset;
   animation: containerAppear 0.6s ease-out;
-  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 @keyframes containerAppear {
@@ -357,6 +358,72 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Guest access */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.875rem;
+  color: #64748b;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.login-guest-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-guest-button:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.16);
+  border-color: rgba(129, 140, 248, 0.85);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -12px rgba(99, 102, 241, 0.6);
+}
+
+.login-guest-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.login-guest-button.loading {
+  cursor: not-allowed;
+}
+
+.login-guest-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.login-guest-hint {
+  margin-top: 0.625rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
 /* Footer */

@@ -12,6 +12,8 @@ export function removeLocalStorage() {
     "ql_userID",
     "ql_userName",
     "ql_userEmail",
+    "ql_isGuest",
+    "ql_guestExpiresAt",
     "userName",
     "userEmail",
     // legacy keys
@@ -36,4 +38,10 @@ export function clearAuthSession() {
     // js-cookie may have set path=/ ; clear both ways
     document.cookie = "authToken=; Max-Age=0; path=/;";
   } catch (_) {}
+}
+
+/** True once the local guest session (if any) has passed its 10-minute expiry. */
+export function isGuestSessionExpired() {
+  const expiresAt = Number(localStorage.getItem("ql_guestExpiresAt") || 0);
+  return expiresAt > 0 && Date.now() >= expiresAt;
 }

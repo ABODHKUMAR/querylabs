@@ -6,6 +6,7 @@ import { I } from '../icons';
 import { QueryLabLogo } from '../QueryLabLogo';
 import { fetchAllHistory } from '../../api/api';
 import { formatSourceLabel } from '../sourceDisplayNames';
+import { clearAuthSession, isGuestSessionExpired } from '../../components/hooks/helpers';
 
 function timeGroup(dttm) {
   if (!dttm) return 'Older';
@@ -125,9 +126,20 @@ export function QueryLabHistoryPage() {
   const userId    = useRef(localStorage.getItem('ql_userID') || 'anonymous');
   const sessionId = useRef(localStorage.getItem('sessionId') || '');
 
-  // Auth guard — redirect to login if no token
+  // Auth guard — redirect to login if no token or the guest session expired
   useEffect(() => {
-    if (!Cookies.get('authToken')) navigate('/');
+    if (!Cookies.get('authToken') || isGuestSessionExpired()) {
+      clearAuthSession();
+      navigate('/');
+      return;
+    }
+    const expiresAt = Number(localStorage.getItem('ql_guestExpiresAt') || 0);
+    if (!expiresAt) return;
+    const timer = setTimeout(() => {
+      clearAuthSession();
+      navigate('/');
+    }, Math.max(0, expiresAt - Date.now()));
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   useEffect(() => {

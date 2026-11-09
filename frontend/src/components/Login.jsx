@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/api";
+import { login, guestLogin } from "../api/api";
 import Cookies from "js-cookie";
 import { validateEmail } from "./hooks/helpers";
-import { removeLocalStorage, deleteCookie } from "../components/hooks/helpers";
-import { Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { removeLocalStorage } from "../components/hooks/helpers";
+import { Mail, Lock, ArrowRight, Sparkles, UserRound } from "lucide-react";
 import "./Login.css";
 
 const Login = () => {
@@ -13,9 +13,34 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
   const navigate = useNavigate();
+
+  // Shared session persistence for password and guest logins.
+  // Guest tokens expire after 10 minutes, so the cookie is pinned to that expiry.
+  const persistAuthSession = useCallback((response, fallbackEmail = "") => {
+    removeLocalStorage();
+    localStorage.setItem("ql_userID", response.user?.user_id || fallbackEmail);
+    const emailValue = response.user?.email || fallbackEmail;
+    if (emailValue) localStorage.setItem("ql_userEmail", emailValue);
+    const nameValue = response.user?.name || response.user?.display_name;
+    if (nameValue) localStorage.setItem("ql_userName", nameValue);
+
+    const expiresInSeconds = Number(response.expires_in_seconds) || 0;
+    if (response.user?.is_guest && expiresInSeconds > 0) {
+      const expiresAt = Date.now() + expiresInSeconds * 1000;
+      localStorage.setItem("ql_isGuest", "true");
+      localStorage.setItem("ql_guestExpiresAt", String(expiresAt));
+      Cookies.set("authToken", response.token, { expires: new Date(expiresAt), path: "/" });
+    } else {
+      localStorage.removeItem("ql_isGuest");
+      localStorage.removeItem("ql_guestExpiresAt");
+      Cookies.set("authToken", response.token, { expires: 1, path: "/" });
+    }
+    navigate("/querylab");
+  }, [navigate]);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -34,13 +59,7 @@ const Login = () => {
       try {
         const response = await login({ user_id: email, password });
         if (response?.token) {
-          removeLocalStorage();
-          localStorage.removeItem("ql_userID");
-          localStorage.setItem("ql_userID", response.user?.user_id || email);
-          localStorage.setItem("ql_userEmail", response.user?.email || email);
-          if (response.user?.name) localStorage.setItem("ql_userName", response.user.name);
-          Cookies.set("authToken", response.token, { expires: 1, path: "/" });
-          navigate("/querylab");
+          persistAuthSession(response, email);
         } else {
           navigate("/");
         }
@@ -51,8 +70,31 @@ const Login = () => {
         setLoading(false);
       }
     },
-    [email, password, navigate]
+    [email, password, navigate, persistAuthSession]
   );
+
+  const handleGuestLogin = useCallback(async () => {
+    setLoginError("");
+    setGuestLoading(true);
+    try {
+      const response = await guestLogin();
+      if (response?.token) {
+        persistAuthSession(response);
+      } else {
+        setLoginError("Guest login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Guest login failed:", error);
+      const detail = error?.response?.data?.detail;
+      setLoginError(
+        error?.response?.status === 429
+          ? detail || "Guest session limit reached for this origin."
+          : "Guest login is unavailable right now. Please try again."
+      );
+    } finally {
+      setGuestLoading(false);
+    }
+  }, [persistAuthSession]);
 
   return (
     <div className="login-page">
@@ -135,7 +177,7 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || guestLoading}
             className={`login-button ${loading ? 'loading' : ''}`}
           >
             {loading ? (
@@ -151,6 +193,30 @@ const Login = () => {
             )}
           </button>
         </form>
+
+        {/* Guest access */}
+        <div className="login-divider">
+          <span>or</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleGuestLogin}
+          disabled={guestLoading || loading}
+          className={`login-guest-button ${guestLoading ? 'loading' : ''}`}
+        >
+          {guestLoading ? (
+            <>
+              <div className="login-spinner"></div>
+              <span>Starting guest session...</span>
+            </>
+          ) : (
+            <>
+              <UserRound className="login-guest-icon" />
+              <span>Continue as Guest</span>
+            </>
+          )}
+        </button>
+        <p className="login-guest-hint">10-minute access · 3 guest sessions per origin</p>
 
         {/* Forgot Password Link */}
         <div className="login-footer">

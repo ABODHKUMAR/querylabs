@@ -352,6 +352,33 @@ export async function login({ user_id, password }) {
 }
 
 /**
+ * Starts a credential-less guest session.
+ * Backend allows 3 sessions per browser origin, each valid for 10 minutes.
+ * @returns {Promise<any>} Guest login response data.
+ */
+export async function guestLogin() {
+  try {
+    const response = await axios.post(
+      `${baseURL}/guest`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Guest login success:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Guest login error:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+}
+
+/**
  * Logout: notify backend (stateless JWT) then clear client session.
  * Always clears local auth even if the API call fails.
  */

@@ -124,6 +124,7 @@ async def root():
             "data_sources": "GET /api/data_source/",
             "query_stream": "POST /api/v3/query/stream — JWT + X-Request-ID",
             "auth_login": "POST /api/login or POST /api/v1/auth/login",
+            "auth_guest": "POST /api/guest or POST /api/v1/auth/guest — 10 min, 3 per origin",
             "auth_logout": "POST /api/logout or POST /api/v1/auth/logout",
             "agent_workspace": "GET/POST /api/workspace/agents — JWT; edit .agents from UI",
             "agent_workspace_generate": "POST /api/workspace/generate — LLM draft AGENT.md / skill .md",

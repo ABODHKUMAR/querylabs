@@ -235,6 +235,7 @@ Internal ids (`forge_agent`, `sub_sources`, MCP names) stay stable for routing.
 | UI surface | Primary APIs |
 |------------|--------------|
 | Login | `POST /api/v1/auth/login` |
+| Guest login | `POST /api/v1/auth/guest` (10 min, 3 sessions per origin) |
 | All sources chip | `GET /api/agent_names` |
 | Plan | plan generate + edit local state |
 | Run | SSE query stream with `approved_plan` / `collection` |

@@ -14,7 +14,15 @@ from orchestrator.config import (
     BACKEND_DB_PASSWORD,
     BACKEND_DB_PORT,
     BACKEND_DB_USER,
+    JWT_SECRET_KEY,
     auth_login_enabled,
+)
+from orchestrator.guest import (
+    GUEST_MAX_SESSIONS,
+    GUEST_SESSION_MINUTES,
+    GuestLimitExceeded,
+    resolve_origin,
+    start_guest_session,
 )
 from orchestrator.rate_limit import limiter, login_rate_limit_string
 
@@ -115,6 +123,68 @@ def login_user(request: Request, user: UserLogin) -> dict[str, Any]:
             conn.close()
 
 
+def _create_guest_session(request: Request) -> dict[str, Any]:
+    """Shared implementation for the versioned and legacy guest routes."""
+    if not JWT_SECRET_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="Guest login not configured: set SECRET_KEY.",
+        )
+    client_host = request.client.host if request.client else None
+    origin = resolve_origin(request)
+    try:
+        session = start_guest_session(origin)
+    except GuestLimitExceeded:
+        log_login_attempt(
+            outcome="guest_denied",
+            user_id_attempt=origin,
+            request_path=str(request.url.path),
+            client_host=client_host,
+        )
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                f"Guest session limit reached for this origin "
+                f"({GUEST_MAX_SESSIONS} sessions of {GUEST_SESSION_MINUTES} minutes)."
+            ),
+        )
+
+    token = create_access_token(
+        session.user_id,
+        "guest",
+        expires_minutes=GUEST_SESSION_MINUTES,
+        extra_claims={"is_guest": True, "origin": session.origin},
+    )
+    log_login_attempt(
+        outcome="guest_success",
+        user_id_attempt=session.user_id,
+        request_path=str(request.url.path),
+        client_host=client_host,
+    )
+    return {
+        "token": token,
+        "user": {
+            "user_id": session.user_id,
+            "display_name": "Guest",
+            "role": "guest",
+            "is_guest": True,
+            "origin": session.origin,
+        },
+        "expires_in_seconds": session.expires_in_seconds,
+        "expires_at": session.expires_at.isoformat(),
+        "guest_sessions_used": session.sessions_used,
+        "guest_sessions_remaining": session.sessions_remaining,
+        "guest_session_limit": GUEST_MAX_SESSIONS,
+    }
+
+
+@router.post("/guest")
+@limiter.limit(login_rate_limit_string())
+def guest_login(request: Request) -> dict[str, Any]:
+    """Start a credential-less guest session (10 minutes, 3 per origin)."""
+    return _create_guest_session(request)
+
+
 @router.post("/logout")
 def logout_user() -> dict[str, str]:
     """Stateless JWT: client discards the token."""
@@ -132,6 +202,13 @@ legacy_auth_router = APIRouter(tags=["auth-legacy"])
 def legacy_api_login(request: Request, user: UserLogin) -> dict[str, Any]:
     """Same as POST /api/v1/auth/login — for clients still calling /api/login."""
     return login_user(request, user)
+
+
+@legacy_auth_router.post("/guest")
+@limiter.limit(login_rate_limit_string())
+def legacy_api_guest(request: Request) -> dict[str, Any]:
+    """Same as POST /api/v1/auth/guest — for the SPA calling /api/guest."""
+    return _create_guest_session(request)
 
 
 @legacy_auth_router.post("/logout")

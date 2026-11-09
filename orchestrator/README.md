@@ -10,6 +10,7 @@ Thin orchestration layer over the **agents** API. Same folder style as `agents/`
 | **POST /api/v3/query/stream** | Streaming query using a LangGraph orchestrator. **Requires** `Authorization: Bearer <JWT>`. Same SSE contract as querylab_sql v3, plus `request_id` / `trace_id` on events. |
 | **POST /api/login** | Login (legacy path; same handler as below). |
 | **POST /api/v1/auth/login** | Login against MySQL `user_master`. Returns `{ token, user }`. |
+| **POST /api/guest** / **POST /api/v1/auth/guest** | Credential-less guest session (JWT valid **10 minutes**, max **3 sessions per origin**). Guest identity is derived from the `Origin` header (`Referer` then client IP fallback). |
 | **POST /api/logout** / **POST /api/v1/auth/logout** | Stateless JWT: client discards token. |
 | **GET /health** | Liveness (process up). |
 | **GET /ready** | Readiness: agents `/ready` OK; MySQL ping when chat persistence is enabled. |
@@ -62,6 +63,7 @@ The compiled graph is a singleton (`get_graph()` in `orchestrator/graph/orchestr
 - **ORCHESTRATOR_LOG_FORMAT** — `text` (default) or `json`.
 - **ORCHESTRATOR_LOG_FILE** — Optional path (e.g. `logs/orchestrator.log`); same records as stderr, with rotation via **ORCHESTRATOR_LOG_FILE_MAX_BYTES** (default 10MB) and **ORCHESTRATOR_LOG_FILE_BACKUP_COUNT** (default 5).
 - **ORCHESTRATOR_RATE_LIMIT_LOGIN** / **ORCHESTRATOR_RATE_LIMIT_GLOBAL** — SlowAPI limits.
+- **ORCHESTRATOR_GUEST_SESSION_MINUTES** / **ORCHESTRATOR_GUEST_MAX_SESSIONS** — Guest token lifetime (default `10`) and per-origin session cap (default `3`). Counters are in-memory and reset on restart.
 - **ORCHESTRATOR_CANARY_*** — Synthetic checks against the agents API.
 - **QUERYLAB_LLM_PRICE_*** — (agents) optional USD per 1M tokens for cost estimates in logs.
 
@@ -92,6 +94,8 @@ Orchestrator loads env from **`orchestrator/.env`** (repo root next to `pyprojec
 | `QUERYLAB_AGENTS_API_URL`, `ORCHESTRATOR_HOST`, `ORCHESTRATOR_PORT` | Agents API URL and bind defaults. |
 
 **Login:** `POST /api/login` or `POST /api/v1/auth/login` with `{"user_id": "<email>", "password": "..."}`.
+
+**Guest login:** `POST /api/guest` (no body/credentials) → `{ token, user, expires_in_seconds, guest_sessions_used, guest_sessions_remaining }`. The same origin can start 3 sessions; a 4th returns `429`.
 
 **Troubleshooting:** `401` — credentials / user row; `500` — DB or `user_login_history`; `429` — rate limits. Do not commit `.env`.
 
